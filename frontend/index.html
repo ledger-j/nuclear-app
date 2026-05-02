@@ -230,90 +230,31 @@
       </section>
 
       <section class="grid">
-        <article class="card span-6">
-          <h3>Python kernel outline</h3>
-          <p>Start with a small service that polls sources, stores normalized observations, and computes a score per station and per plant.</p>
-          <div class="code">from dataclasses import dataclass
-from datetime import datetime
-from typing import Literal
-
-@dataclass
-class Signal:
-    source: str
-    region: str
-    metric: str
-    value: float
-    baseline: float | None
-    timestamp: datetime
-    confidence: float
-    kind: Literal['measurement','news','weather','notice']
-
-
-def zscore(value: float, baseline: float, sigma: float) -> float:
-    if sigma <= 0:
-        return 0.0
-    return (value - baseline) / sigma
-
-
-def signal_score(signals: list[Signal]) -> float:
-    measurement = sum(min(35, s.confidence * 35) for s in signals if s.kind == 'measurement')
-    weather = sum(min(20, s.confidence * 20) for s in signals if s.kind == 'weather')
-    news = sum(min(25, s.confidence * 25) for s in signals if s.kind == 'news')
-    notice = sum(min(20, s.confidence * 20) for s in signals if s.kind == 'notice')
-    total = measurement + weather + news + notice
-    cross_bonus = 10 if len({s.kind for s in signals}) >= 2 else 0
-    return min(100, total + cross_bonus)</div>
-        </article>
-        <article class="card span-6">
-          <h3>Agentic loop</h3>
-          <p>The smart kernel should not just fetch data; it should explain whether a spike is likely harmless, weather-related, operational, or suspicious.</p>
-          <div class="flow">
-            <div class="step"><strong>Scheduler</strong> Pull hourly measurements, weather updates, plant notices, and targeted RSS/news queries.</div>
-            <div class="step"><strong>Normalizer</strong> Convert heterogeneous feeds into one schema: station, plant, metric, timestamp, source confidence.</div>
-            <div class="step"><strong>Reasoner</strong> Ask an LLM to summarize anomalies only after quantitative filters flag them.</div>
-            <div class="step"><strong>Memory</strong> Save normal seasonal patterns and known recurring causes so the system gets quieter over time.</div>
-            <div class="step"><strong>Human override</strong> Personal rules let you mute low-value regions and intensify alerts for France/Belgium corridors.</div>
-          </div>
-        </article>
-      </section>
-
-      <section class="grid">
         <article class="card span-8">
-          <h3>How to code this in Antigravity + Claude Code</h3>
-          <p>Use Antigravity for planning, multi-file edits, and test loops; use Claude Code as the coding copilot for refactors, feed adapters, and alert logic.</p>
-          <div class="flow">
-            <div class="step"><strong>Phase A — bootstrap</strong> Create a Python project with FastAPI or Flask backend, SQLite/Postgres store, and a single-page frontend.</div>
-            <div class="step"><strong>Phase B — connectors</strong> Add adapters for EURDEP, RNM, regulator RSS/news, and weather API calls; cache raw payloads for traceability.</div>
-            <div class="step"><strong>Phase C — scoring</strong> Implement rolling medians, neighbor comparison, and multi-signal alert thresholds before any LLM usage.</div>
-            <div class="step"><strong>Phase D — agent layer</strong> Add a prompt chain that receives only shortlisted anomalies and outputs explanation, confidence, and next checks.</div>
-            <div class="step"><strong>Phase E — personal ops</strong> Add Telegram/email/webhook alerts, quiet hours, and a focus mode for Doel, Tihange, Chooz, Cattenom, Gravelines.</div>
+          <h3>Recent Event Log</h3>
+          <p>Chronological history of short-listed events and baseline calculations.</p>
+          <div class="list" id="event-log">
+            <!-- Event logs will be populated by JS -->
+            <div class="item"><div><small>Waiting for data...</small></div></div>
           </div>
         </article>
         <article class="card span-4">
-          <h3>Recommended repo tree</h3>
-          <div class="code">nuclear-monitor/
-  app/
-    api/
-      measurements.py
-      alerts.py
-      news.py
-    collectors/
-      eurdep.py
-      rnm_france.py
-      regulator_feeds.py
-      weather.py
-    scoring/
-      baselines.py
-      anomaly.py
-      transport.py
-    agent/
-      triage.py
-      prompts.py
-    templates/
-    static/
-  data/
-  tests/
-  pyproject.toml</div>
+          <h3>System Diagnostics</h3>
+          <p>Current health of the smart kernel and connectors.</p>
+          <div class="flow" style="margin-top:var(--space-3)">
+            <div class="step" style="display:flex; justify-content:space-between;">
+              <strong>EURDEP Connector</strong> <span class="badge ok">Online</span>
+            </div>
+            <div class="step" style="display:flex; justify-content:space-between;">
+              <strong>RNM Deep Stats</strong> <span class="badge ok">Online</span>
+            </div>
+            <div class="step" style="display:flex; justify-content:space-between;">
+              <strong>Weather API</strong> <span class="badge ok">Online</span>
+            </div>
+            <div class="step" style="display:flex; justify-content:space-between;">
+              <strong>LLM Triage Engine</strong> <span class="badge watch">Idle</span>
+            </div>
+          </div>
         </article>
       </section>
     </main>

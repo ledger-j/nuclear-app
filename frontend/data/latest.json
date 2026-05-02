@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-02T21:20:00Z",
+  "timestamp": "2026-05-02T21:55:00Z",
   "plants": [
     {"name": "Doel", "status": "watch", "baseline": 60, "val": 72},
     {"name": "Tihange", "status": "ok", "baseline": 70, "val": 68},
@@ -12,12 +12,13 @@
     {"name": "Tricastin", "status": "ok", "baseline": 70, "val": 71},
     {"name": "Bugey", "status": "ok", "baseline": 75, "val": 76}
   ],
-  "scores": {
-    "eurdep": 35,
-    "rnm": 42,
-    "news": 15,
-    "meteo": 12
-  },
-  "total_score": 52,
-  "summary": "Mock summary: Readings at Cattenom are slightly elevated but within watch limits. Weather patterns indicate normal dispersion."
+  "total_score": 73,
+  "trend": [45, 48, 52, 50, 55, 60, 58, 65, 70, 68, 71, 73],
+  "logs": [
+    {"time": "21:45", "level": "risk", "msg": "Cattenom: System scored 73 (elevated readings + weather)."},
+    {"time": "21:10", "level": "ok", "msg": "Routine EURDEP synchronization complete."},
+    {"time": "19:55", "level": "watch", "msg": "Doel: Minor news keyword spike detected. No corroborating measurements."},
+    {"time": "16:00", "level": "ok", "msg": "Daily baseline recalculation successful."}
+  ],
+  "summary": "Kernel assessment: Aggregate risk score is 73/100. Signals show cross-confirmation across 3 distinct sources."
 }
