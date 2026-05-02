@@ -137,4 +137,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initial load
   loadData();
+
+  // Sidebar Accordion Logic
+  const watchlistBtn = document.getElementById('btn-watchlist');
+  const subWatchlist = document.getElementById('sub-watchlist');
+  if (watchlistBtn && subWatchlist) {
+    watchlistBtn.addEventListener('click', () => {
+      subWatchlist.classList.toggle('open');
+      const chevron = watchlistBtn.querySelector('.chevron');
+      if(chevron) chevron.classList.toggle('open');
+    });
+  }
 });
