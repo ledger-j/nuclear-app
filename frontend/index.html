@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuclear Monitor Dashboard</title>
+  <meta name="description" content="Personal monitoring dashboard concept for European radiation, nuclear alerts, weather risk, and news anomalies." />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@500,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+      --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9; --color-surface-offset:#f3f0ec; --color-surface-dynamic:#e6e4df;
+      --color-border:#d4d1ca; --color-divider:#dcd9d5; --color-text:#28251d; --color-text-muted:#66645e; --color-text-faint:#9d9b96; --color-text-inverse:#f9f8f4;
+      --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-highlight:#cedcd8; --color-warning:#964219; --color-error:#a12c7b; --color-success:#437a22; --color-orange:#da7101; --color-blue:#006494;
+      --radius-sm:0.375rem; --radius-md:0.5rem; --radius-lg:0.75rem; --radius-xl:1rem; --radius-full:9999px;
+      --shadow-sm: 0 1px 2px oklch(0.2 0.01 80 / 0.06); --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.08); --shadow-lg: 0 12px 32px oklch(0.2 0.01 80 / 0.12);
+      --font-body:'Satoshi', Inter, sans-serif; --font-display:'Cabinet Grotesk', Inter, sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#1d1c1a; --color-surface-dynamic:#2d2c2a;
+      --color-border:#393836; --color-divider:#262523; --color-text:#cdccca; --color-text-muted:#9a9996; --color-text-faint:#666562; --color-text-inverse:#2b2a28;
+      --color-primary:#4f98a3; --color-primary-hover:#227f8b; --color-primary-highlight:#313b3b; --color-warning:#bb653b; --color-error:#d163a7; --color-success:#6daa45; --color-orange:#fdab43; --color-blue:#5591c7;
+      --shadow-sm:0 1px 2px oklch(0 0 0 / 0.2); --shadow-md:0 4px 12px oklch(0 0 0 / 0.3); --shadow-lg:0 12px 32px oklch(0 0 0 / 0.4);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);line-height:1.6;background:var(--color-bg);color:var(--color-text)}
+    button,input,select{font:inherit;color:inherit} button{cursor:pointer;border:none;background:none}
+    a{color:inherit}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100dvh}
+    .sidebar{background:linear-gradient(180deg,var(--color-surface),var(--color-surface-offset));border-right:1px solid oklch(from var(--color-text) l c h / 0.12);padding:var(--space-6);position:sticky;top:0;height:100dvh}
+    .brand{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8)}
+    .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--color-primary-highlight),transparent),var(--color-surface-2);display:grid;place-items:center;border:1px solid oklch(from var(--color-text) l c h / 0.12)}
+    .logo svg{width:24px;height:24px;color:var(--color-primary)}
+    .brand h1{font-family:var(--font-display);font-size:var(--text-lg);line-height:1.1}
+    .brand p{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)}
+    .nav{display:grid;gap:var(--space-2)}
+    .nav button{padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);text-align:left;font-size:var(--text-sm);display:flex;justify-content:space-between;align-items:center;border:1px solid transparent}
+    .nav button.active,.nav button:hover{background:var(--color-surface-2);border-color:oklch(from var(--color-text) l c h / 0.1)}
+    .sidebar-foot{margin-top:auto;padding-top:var(--space-8);display:grid;gap:var(--space-3)}
+    .tiny{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .main{padding:var(--space-6);display:grid;gap:var(--space-6)}
+    .topbar{display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap}
+    .title h2{font-family:var(--font-display);font-size:var(--text-xl);line-height:1.05;max-width:16ch}
+    .title p{margin-top:var(--space-2);max-width:70ch;color:var(--color-text-muted)}
+    .actions{display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .btn{padding:0.8rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);border:1px solid oklch(from var(--color-text) l c h / 0.12);background:var(--color-surface);box-shadow:var(--shadow-sm)}
+    .btn.primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
+    .btn.primary:hover{background:var(--color-primary-hover)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--space-4)}
+    .card{background:var(--color-surface);border:1px solid oklch(from var(--color-text) l c h / 0.12);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--shadow-sm)}
+    .card h3{font-size:var(--text-lg);line-height:1.15;font-weight:700;margin-bottom:var(--space-2)}
+    .card p{color:var(--color-text-muted);font-size:var(--text-sm)}
+    .span-3{grid-column:span 3}.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+    .metric{display:flex;flex-direction:column;gap:var(--space-3)}
+    .metric .label{font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em}
+    .metric .value{font-family:var(--font-display);font-size:var(--text-xl);line-height:1}
+    .badge{display:inline-flex;align-items:center;gap:0.45rem;padding:0.35rem 0.65rem;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:700}
+    .ok{background:color-mix(in oklab,var(--color-success) 18%,transparent);color:var(--color-success)}
+    .watch{background:color-mix(in oklab,var(--color-orange) 18%,transparent);color:var(--color-orange)}
+    .risk{background:color-mix(in oklab,var(--color-error) 18%,transparent);color:var(--color-error)}
+    .table{width:100%;border-collapse:collapse;margin-top:var(--space-3)}
+    .table th,.table td{padding:0.9rem 0.6rem;text-align:left;border-bottom:1px solid var(--color-divider);vertical-align:top;font-size:var(--text-sm)}
+    .table th{font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted);letter-spacing:0.06em}
+    .spark{height:96px;display:flex;align-items:flex-end;gap:6px;margin-top:var(--space-4)}
+    .spark span{flex:1;border-radius:999px 999px 0 0;background:linear-gradient(180deg,var(--color-primary),color-mix(in oklab,var(--color-primary) 25%,transparent));opacity:0.9}
+    .list{display:grid;gap:var(--space-3);margin-top:var(--space-3)}
+    .item{display:flex;justify-content:space-between;gap:var(--space-3);padding:var(--space-3);background:var(--color-surface-2);border-radius:var(--radius-lg);border:1px solid oklch(from var(--color-text) l c h / 0.08)}
+    .item strong{font-size:var(--text-sm)}
+    .item small{display:block;color:var(--color-text-muted);font-size:var(--text-xs)}
+    .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--color-surface-2);border:1px solid oklch(from var(--color-text) l c h / 0.08);border-radius:var(--radius-lg);padding:var(--space-4);font-size:0.87rem;overflow:auto;white-space:pre-wrap;color:var(--color-text)}
+    .flow{display:grid;gap:var(--space-3);margin-top:var(--space-3)}
+    .flow .step{padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface-2);border:1px solid oklch(from var(--color-text) l c h / 0.08)}
+    .flow .step strong{display:block;margin-bottom:0.2rem}
+    .footer-note{padding:var(--space-4);border-radius:var(--radius-lg);background:color-mix(in oklab,var(--color-primary) 10%,var(--color-surface));border:1px solid color-mix(in oklab,var(--color-primary) 20%,transparent)}
+    .toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:var(--radius-full);border:1px solid oklch(from var(--color-text) l c h / 0.12);background:var(--color-surface)}
+    .mapbox{margin-top:var(--space-3);background:radial-gradient(circle at 20% 20%, color-mix(in oklab,var(--color-primary) 25%,transparent), transparent 35%),radial-gradient(circle at 80% 30%, color-mix(in oklab,var(--color-orange) 18%,transparent), transparent 28%),var(--color-surface-2);min-height:280px;border-radius:var(--radius-xl);border:1px solid oklch(from var(--color-text) l c h / 0.08);padding:var(--space-4);position:relative;overflow:hidden}
+    .plant{position:absolute;padding:0.35rem 0.55rem;border-radius:var(--radius-full);font-size:var(--text-xs);background:var(--color-bg);border:1px solid oklch(from var(--color-text) l c h / 0.12);box-shadow:var(--shadow-sm)}
+    /* removed hardcoded .plant::before to allow JS coloring */
+    .legend{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)}
+    .legend span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:0.35rem;vertical-align:middle}
+    .legend .l1::before{background:var(--color-success)} .legend .l2::before{background:var(--color-orange)} .legend .l3::before{background:var(--color-error)}
+    @media (max-width: 1080px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.span-3,.span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 12}}
+    @media (max-width: 640px){.main{padding:var(--space-4)}.sidebar{padding:var(--space-4)}.topbar{flex-direction:column}.actions{width:100%}.actions .btn{flex:1}.mapbox{min-height:220px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 2l7 4v6c0 4.2-2.9 8-7 10-4.1-2-7-5.8-7-10V6l7-4Z"></path>
+            <path d="M12 7v10"></path>
+            <path d="M8.5 10.5h7"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>Nuclear Sentinel</h1>
+          <p>Personal European anomaly monitor</p>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="active">Live overview <span>01</span></button>
+        <button>Radiation network <span>02</span></button>
+        <button>Plant watchlist <span>03</span></button>
+        <button>Weather stress <span>04</span></button>
+        <button>News anomaly engine <span>05</span></button>
+        <button>Agent kernel <span>06</span></button>
+      </div>
+      <div class="sidebar-foot">
+        <div class="footer-note tiny">
+          First-stage concept: blend official measurement feeds, regulator updates, news clustering, and local rules before sending any alert.
+        </div>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h2>Detect weak signals before mainstream reporting catches up.</h2>
+          <p>This prototype is designed for a private user who wants to monitor Europe continuously, with particular attention to France and Belgium, without relying on a single institution or a single news headline.</p>
+        </div>
+        <div class="actions">
+          <button class="btn primary">Run anomaly scan</button>
+          <button class="btn">Export alert rules</button>
+          <button class="toggle" data-theme-toggle aria-label="Switch theme">☾</button>
+        </div>
+      </div>
+
+      <section class="grid">
+        <article class="card span-3 metric">
+          <span class="label">Europe gamma feed</span>
+          <span class="value">EURDEP</span>
+          <span class="badge ok">Official near-real-time network</span>
+          <p>Good backbone for dose-rate anomalies, but not itself an emergency alert system.</p>
+        </article>
+        <article class="card span-3 metric">
+          <span class="label">France deep measurements</span>
+          <span class="value">RNM</span>
+          <span class="badge ok">Air, water, soil, food</span>
+          <p>Useful for validated environmental radioactivity beyond simple gamma dose rates.</p>
+        </article>
+        <article class="card span-3 metric">
+          <span class="label">Belgium plant focus</span>
+          <span class="value">Doel / Tihange</span>
+          <span class="badge watch">Priority watchlist</span>
+          <p>Two-site watchlist for plant status, local weather transport, and nearby measurements.</p>
+        </article>
+        <article class="card span-3 metric">
+          <span class="label">Decision mode</span>
+          <span class="value">3-layer</span>
+          <span class="badge risk">Measure + news + meteo</span>
+          <p>Only trigger when multiple independent signals move together.</p>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card span-7">
+          <h3>France and Belgium watch map</h3>
+          <p>Early version: fixed strategic map showing the highest-priority plants for a private dashboard. In production, replace this panel with Leaflet and live measurement overlays.</p>
+          <div class="mapbox" role="img" aria-label="Stylised map showing French and Belgian nuclear sites of interest">
+            <div class="plant" style="left:57%;top:28%;">Doel</div>
+            <div class="plant" style="left:60%;top:39%;">Tihange</div>
+            <div class="plant" style="left:49%;top:23%;">Gravelines</div>
+            <div class="plant" style="left:53%;top:31%;">Chooz</div>
+            <div class="plant" style="left:50%;top:36%;">Cattenom</div>
+            <div class="plant" style="left:43%;top:44%;">Nogent</div>
+            <div class="plant" style="left:36%;top:54%;">Blayais</div>
+            <div class="plant" style="left:48%;top:61%;">Golfech</div>
+            <div class="plant" style="left:54%;top:66%;">Tricastin</div>
+            <div class="plant" style="left:62%;top:58%;">Bugey</div>
+          </div>
+          <div class="legend">
+            <span class="l1">Routine background</span>
+            <span class="l2">Watch anomaly</span>
+            <span class="l3">Escalate if cross-confirmed</span>
+          </div>
+        </article>
+        <article class="card span-5">
+          <h3>Anomaly logic</h3>
+          <p>The app should avoid false alarms from normal background swings, sensor outages, storms, or isolated media rumors.</p>
+          <div class="flow">
+            <div class="step"><strong>1. Measurement layer</strong> Compare latest dose rate with local rolling baseline and nearby station median.</div>
+            <div class="step"><strong>2. Context layer</strong> Check wind, rainfall, wildfire smoke, thunderstorm conditions, and known maintenance notices.</div>
+            <div class="step"><strong>3. Narrative layer</strong> Cluster regulator updates, local news, and social/open signals around named plants.</div>
+            <div class="step"><strong>4. Alert layer</strong> Escalate only when score exceeds threshold and at least two source families agree.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card span-4">
+          <h3>Signal score</h3>
+          <p>Illustrative score bands for the first-stage app.</p>
+          <div class="list">
+            <div class="item"><div><strong>0-39</strong><small>Normal background range</small></div><span class="badge ok">Log only</span></div>
+            <div class="item"><div><strong>40-69</strong><small>Unexpected spike at one or few stations</small></div><span class="badge watch">Watch</span></div>
+            <div class="item"><div><strong>70-84</strong><small>Spike plus weather/plume plausibility</small></div><span class="badge watch">Investigate</span></div>
+            <div class="item"><div><strong>85-100</strong><small>Cross-source confirmation</small></div><span class="badge risk">Alert</span></div>
+          </div>
+        </article>
+        <article class="card span-4">
+          <h3>Mini trend panel</h3>
+          <p>Example visual component for one station cluster or one plant corridor.</p>
+          <div class="spark" aria-hidden="true">
+            <span style="height:28%"></span><span style="height:31%"></span><span style="height:26%"></span><span style="height:34%"></span><span style="height:38%"></span><span style="height:44%"></span><span style="height:49%"></span><span style="height:42%"></span><span style="height:58%"></span><span style="height:61%"></span><span style="height:67%"></span><span style="height:72%"></span>
+          </div>
+          <div class="tiny" style="margin-top:var(--space-3)">Final version should show hourly gamma dose rate, baseline band, and neighboring-station comparison.</div>
+        </article>
+        <article class="card span-4">
+          <h3>Core sources</h3>
+          <table class="table">
+            <thead><tr><th>Source</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td>EURDEP</td><td>Europe-wide gamma dose-rate backbone</td></tr>
+              <tr><td>France RNM</td><td>Validated French environmental measurements</td></tr>
+              <tr><td>IAEA PRIS</td><td>Plant inventory and reactor status context</td></tr>
+              <tr><td>National regulators</td><td>Notices, incidents, outages, public statements</td></tr>
+              <tr><td>Weather APIs</td><td>Wind, rain, heat stress, flood and fire risk</td></tr>
+              <tr><td>News/RSS</td><td>Extraordinary event detection around plant names</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card span-6">
+          <h3>Python kernel outline</h3>
+          <p>Start with a small service that polls sources, stores normalized observations, and computes a score per station and per plant.</p>
+          <div class="code">from dataclasses import dataclass
+from datetime import datetime
+from typing import Literal
+
+@dataclass
+class Signal:
+    source: str
+    region: str
+    metric: str
+    value: float
+    baseline: float | None
+    timestamp: datetime
+    confidence: float
+    kind: Literal['measurement','news','weather','notice']
+
+
+def zscore(value: float, baseline: float, sigma: float) -> float:
+    if sigma <= 0:
+        return 0.0
+    return (value - baseline) / sigma
+
+
+def signal_score(signals: list[Signal]) -> float:
+    measurement = sum(min(35, s.confidence * 35) for s in signals if s.kind == 'measurement')
+    weather = sum(min(20, s.confidence * 20) for s in signals if s.kind == 'weather')
+    news = sum(min(25, s.confidence * 25) for s in signals if s.kind == 'news')
+    notice = sum(min(20, s.confidence * 20) for s in signals if s.kind == 'notice')
+    total = measurement + weather + news + notice
+    cross_bonus = 10 if len({s.kind for s in signals}) >= 2 else 0
+    return min(100, total + cross_bonus)</div>
+        </article>
+        <article class="card span-6">
+          <h3>Agentic loop</h3>
+          <p>The smart kernel should not just fetch data; it should explain whether a spike is likely harmless, weather-related, operational, or suspicious.</p>
+          <div class="flow">
+            <div class="step"><strong>Scheduler</strong> Pull hourly measurements, weather updates, plant notices, and targeted RSS/news queries.</div>
+            <div class="step"><strong>Normalizer</strong> Convert heterogeneous feeds into one schema: station, plant, metric, timestamp, source confidence.</div>
+            <div class="step"><strong>Reasoner</strong> Ask an LLM to summarize anomalies only after quantitative filters flag them.</div>
+            <div class="step"><strong>Memory</strong> Save normal seasonal patterns and known recurring causes so the system gets quieter over time.</div>
+            <div class="step"><strong>Human override</strong> Personal rules let you mute low-value regions and intensify alerts for France/Belgium corridors.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card span-8">
+          <h3>How to code this in Antigravity + Claude Code</h3>
+          <p>Use Antigravity for planning, multi-file edits, and test loops; use Claude Code as the coding copilot for refactors, feed adapters, and alert logic.</p>
+          <div class="flow">
+            <div class="step"><strong>Phase A — bootstrap</strong> Create a Python project with FastAPI or Flask backend, SQLite/Postgres store, and a single-page frontend.</div>
+            <div class="step"><strong>Phase B — connectors</strong> Add adapters for EURDEP, RNM, regulator RSS/news, and weather API calls; cache raw payloads for traceability.</div>
+            <div class="step"><strong>Phase C — scoring</strong> Implement rolling medians, neighbor comparison, and multi-signal alert thresholds before any LLM usage.</div>
+            <div class="step"><strong>Phase D — agent layer</strong> Add a prompt chain that receives only shortlisted anomalies and outputs explanation, confidence, and next checks.</div>
+            <div class="step"><strong>Phase E — personal ops</strong> Add Telegram/email/webhook alerts, quiet hours, and a focus mode for Doel, Tihange, Chooz, Cattenom, Gravelines.</div>
+          </div>
+        </article>
+        <article class="card span-4">
+          <h3>Recommended repo tree</h3>
+          <div class="code">nuclear-monitor/
+  app/
+    api/
+      measurements.py
+      alerts.py
+      news.py
+    collectors/
+      eurdep.py
+      rnm_france.py
+      regulator_feeds.py
+      weather.py
+    scoring/
+      baselines.py
+      anomaly.py
+      transport.py
+    agent/
+      triage.py
+      prompts.py
+    templates/
+    static/
+  data/
+  tests/
+  pyproject.toml</div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const btn = document.querySelector('[data-theme-toggle]');
+      const root = document.documentElement;
+      let mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', mode);
+      btn.textContent = mode === 'dark' ? '☀' : '☾';
+      btn.addEventListener('click', () => {
+        mode = mode === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', mode);
+        btn.textContent = mode === 'dark' ? '☀' : '☾';
+      });
+    })();
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>

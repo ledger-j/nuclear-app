@@ -1,0 +1,10 @@
+[build]
+  publish = "frontend"
+  # We don't have a build command since we rely on GitHub actions to generate the JSON data and push it.
+  # So Netlify simply serves the frontend directory as static files.
+  command = "echo 'Static deploy'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

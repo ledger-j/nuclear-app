@@ -1,0 +1,31 @@
+name: Nuclear Monitor Kernel
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Run every hour
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  generate-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Run Smart Kernel (Generate Data)
+      run: |
+        python backend/generate_data.py
+        
+    - name: Commit and Push Data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add frontend/data/latest.json
+        git commit -m "Update monitor data" || echo "No changes to commit"
+        git push

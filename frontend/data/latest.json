@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-05-02T21:20:00Z",
+  "plants": [
+    {"name": "Doel", "status": "watch", "baseline": 60, "val": 72},
+    {"name": "Tihange", "status": "ok", "baseline": 70, "val": 68},
+    {"name": "Gravelines", "status": "ok", "baseline": 65, "val": 66},
+    {"name": "Chooz", "status": "ok", "baseline": 80, "val": 81},
+    {"name": "Cattenom", "status": "risk", "baseline": 75, "val": 95},
+    {"name": "Nogent", "status": "ok", "baseline": 60, "val": 58},
+    {"name": "Blayais", "status": "ok", "baseline": 55, "val": 56},
+    {"name": "Golfech", "status": "ok", "baseline": 65, "val": 63},
+    {"name": "Tricastin", "status": "ok", "baseline": 70, "val": 71},
+    {"name": "Bugey", "status": "ok", "baseline": 75, "val": 76}
+  ],
+  "scores": {
+    "eurdep": 35,
+    "rnm": 42,
+    "news": 15,
+    "meteo": 12
+  },
+  "total_score": 52,
+  "summary": "Mock summary: Readings at Cattenom are slightly elevated but within watch limits. Weather patterns indicate normal dispersion."
+}
