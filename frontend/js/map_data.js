@@ -118,6 +118,11 @@ const CITIES = [
 
 function degToRad(d) { return d * Math.PI / 180; }
 
+function dirArrowChar(deg) {
+  const dirs = ['↑','↗','→','↘','↓','↙','←','↖'];
+  return dirs[Math.round(deg / 45) % 8];
+}
+
 function buildSVGMap(plantsJSON) {
   const liveMap = {};
   if (plantsJSON) plantsJSON.forEach(p => liveMap[p.name] = p);
@@ -154,13 +159,22 @@ function buildSVGMap(plantsJSON) {
     const pulseVals = pd.priority === 'high' ? `${r};${r+2};${r}` : `${r};${r+1};${r}`;
     const dur = (2 + Math.random() * 2).toFixed(1);
 
+    const isLow = pd.priority === 'low';
+    const labelSize  = isLow ? '9'  : '11';
+    const labelColor = isLow ? '#9a9996' : '#cdccca';
+    const windColor  = !ws ? '#4f98a3' : ws > 30 ? '#d163a7' : ws > 15 ? '#fdab43' : '#4f98a3';
+    const zLabel     = zs !== null && !isLow ? ` (z:${zs})` : '';
+    const windLabel  = ws != null ? `${ws}km/h ${wd != null ? dirArrowChar(wd) : ''}` : '';
+
     plantSVG += `<g class="plant-marker" data-plant="${pd.name}" style="cursor:pointer">
       <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
         stroke="rgba(0,0,0,0.45)" stroke-width="1.5" opacity="0.95">
         <animate attributeName="r" values="${pulseVals}" dur="${dur}s" repeatCount="indefinite"/>
       </circle>
-      ${pd.priority !== 'low' ? `<text x="${x+10}" y="${y+4}" font-size="11" fill="#cdccca"
-        font-family="Satoshi,Inter,sans-serif">${label}${zs !== null ? ' (z:'+zs+')' : ''}</text>` : ''}
+      <text x="${x + r + 3}" y="${y + 4}" font-size="${labelSize}" fill="${labelColor}"
+        font-family="Satoshi,Inter,sans-serif">${label}${zLabel}</text>
+      ${ws != null ? `<text x="${x + r + 3}" y="${y + 14}" font-size="9" fill="${windColor}"
+        font-family="sans-serif" opacity="0.85">${windLabel}</text>` : ''}
       ${ws != null && wd != null ? windArrow(x, y, ws, wd) : ''}
     </g>`;
   });

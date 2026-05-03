@@ -69,6 +69,11 @@ const UA_CITIES_INTERNAL = [
 const MAASTRICHT_REF = { lat:50.851, lon:5.691,  name:"Maastricht" };
 const TRABEN_REF     = { lat:49.948, lon:7.116,  name:"Traben-Trarbach" };
 
+function dirArrowChar(deg) {
+  const dirs = ['↑','↗','→','↘','↓','↙','←','↖'];
+  return dirs[Math.round(deg / 45) % 8];
+}
+
 function _bearingTo(lat1, lon1, lat2, lon2) {
   const f1 = lat1 * Math.PI / 180, f2 = lat2 * Math.PI / 180;
   const dl = (lon2 - lon1) * Math.PI / 180;
@@ -132,6 +137,9 @@ function buildUkraineMap(plantsJSON) {
     const ws = live.wind_speed, wd = live.wind_dir;
     const r = 8;
 
+    const wColor = !ws ? '#4f98a3' : ws > 30 ? '#d163a7' : ws > 15 ? '#fdab43' : '#4f98a3';
+    const wText  = ws != null ? `${ws} km/h ${wd != null ? dirArrowChar(wd) : ''}` : 'no wind data';
+
     plantSVG += `<g class="ua-plant-marker" data-plant="${pd.name}" style="cursor:pointer">
       <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
         stroke="rgba(0,0,0,0.5)" stroke-width="1.5" opacity="0.95">
@@ -141,8 +149,10 @@ function buildUkraineMap(plantsJSON) {
       ${ws != null && wd != null ? windArrowUA(x, y, ws, wd) : ''}
       <text x="${x+12}" y="${y+4}" font-size="12" fill="#cdccca"
         font-family="Satoshi,Inter,sans-serif" font-weight="600">${pd.name}${zs !== null ? ' (z:'+zs+')' : ''}</text>
-      <text x="${x+12}" y="${y+17}" font-size="10" fill="#9a9996"
-        font-family="sans-serif">${pd.reactors} reactors · ${pd.country}</text>
+      <text x="${x+12}" y="${y+18}" font-size="10" fill="#9a9996"
+        font-family="sans-serif">${pd.reactors} reactors</text>
+      <text x="${x+12}" y="${y+30}" font-size="10" fill="${wColor}"
+        font-family="sans-serif" opacity="0.9">${wText}</text>
     </g>`;
   });
 

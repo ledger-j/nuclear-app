@@ -77,26 +77,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         </article>
       </section>
       <section class="grid">
-        <article class="card span-8">
+        <article class="card span-9">
           <h3>Ukraine Nuclear Map</h3>
-          <p>Four at-risk plants under wartime conditions. Dashed arrows show bearing toward Maastricht — red when wind-aligned.</p>
-          <div id="ua-mapbox" style="width:100%;height:360px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
+          <p>Four at-risk plants. Dashed arrows = bearing to Maastricht (red when wind-aligned). Solid arrows = current wind vector.</p>
+          <div id="ua-mapbox" style="width:100%;height:420px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
         </article>
-        <article class="card span-4">
-          <h3>Wind Alignment: Ukraine → West</h3>
-          <p>Each plant vs. bearing to Maastricht &amp; Traben-Trarbach. Red = wind currently aligned toward those cities.</p>
+        <article class="card span-3">
+          <h3>Wind → West</h3>
+          <p style="font-size:var(--text-xs)">Bearing vs. wind for Maastricht &amp; Traben-Trarbach.</p>
           <div class="list" id="ua-wind-panel" style="margin-top:var(--space-3)"></div>
         </article>
       </section>
       <section class="grid">
-        <article class="card span-8">
-          <h3>France &amp; Neighbour Nuclear Map</h3>
+        <article class="card span-9">
+          <h3>France &amp; Neighbours Nuclear Map</h3>
           <p>${d.summary||''}</p>
-          <div id="mapbox" style="width:100%;height:380px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
+          <div id="mapbox" style="width:100%;height:440px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
         </article>
-        <article class="card span-4">
+        <article class="card span-3">
           <h3>Wind Transport Risk</h3>
-          <p>Plants with highest wind speed — risk of radioactive plume transport toward Maastricht &amp; Traben-Trarbach.</p>
+          <p style="font-size:var(--text-xs)">Highest wind → Maastricht &amp; Traben-Trarbach.</p>
           <div id="wind-panel" style="margin-top:var(--space-3)"></div>
         </article>
       </section>
@@ -184,36 +184,100 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── WATCHLIST ─────────────────────────────────────────────────────────────
   function renderWatchlist() {
-    const ua    = appData.plants.filter(p=>p.country==='UA');
-    const be    = appData.plants.filter(p=>p.country==='BE');
-    const frHi  = appData.plants.filter(p=>p.country==='FR'&&p.priority==='high');
-    const frMed = appData.plants.filter(p=>p.country==='FR'&&p.priority==='medium');
-    const frLow = appData.plants.filter(p=>p.country==='FR'&&p.priority==='low');
+    const rssItems = appData.rss_items || [];
+    const ua = appData.plants.filter(p => p.country === 'UA');
+    const fr = appData.plants.filter(p => p.country === 'FR');
 
-    const cards = list => list.map(p=>`<div class="item" style="flex-direction:column">
-      <div style="display:flex;justify-content:space-between;width:100%">
-        <strong>${p.name}</strong>${badge(p.status)}</div>
-      <small>CPM: ${p.val??'—'} | Baseline: ${p.baseline??'—'} | Z: ${p.zscore??'—'}</small>
-      <small>Wind: ${p.wind_speed??'—'} km/h @ ${p.wind_dir!=null?p.wind_dir+'°':'—'} | Temp: ${p.temp??'—'}°C | Rain: ${p.precip??'—'} mm | RSS: ${p.rss_mentions??0}</small>
-    </div>`).join('');
+    // Derive per-plant anomaly score (0-100) from z-score + status
+    function plantScore(p) {
+      const z = Math.abs(p.zscore || 0);
+      const base = p.status === 'risk' ? 65 : p.status === 'watch' ? 35 : 0;
+      return Math.min(100, Math.round(base + z * 18));
+    }
+
+    // Match RSS items to a plant by name keyword
+    function plantNews(p) {
+      const kw = p.name.toLowerCase().split(/[-\s]/)[0];
+      return rssItems.filter(i => i.title.toLowerCase().includes(kw));
+    }
+
+    function plantCard(p) {
+      const score = plantScore(p);
+      const scoreColor = score >= 65 ? 'var(--color-error)' : score >= 35 ? 'var(--color-orange)' : 'var(--color-success)';
+      const wDir = p.wind_dir != null ? `${p.wind_dir}° ${dirArrow(p.wind_dir)}` : '—';
+      const news = plantNews(p);
+      const newsHTML = news.length
+        ? news.slice(0,2).map(i => `<div style="margin-top:6px;padding:6px 8px;background:var(--color-surface-offset);border-radius:6px;border-left:2px solid var(--color-orange)">
+            <span style="font-size:10px;color:var(--color-text-muted)">${i.source}</span>
+            <div style="font-size:11px;margin-top:2px">${i.title.slice(0,100)}${i.title.length>100?'…':''}</div>
+            ${i.link ? `<a href="${i.link}" target="_blank" rel="noopener" style="font-size:10px;color:var(--color-primary)">Open →</a>` : ''}
+          </div>`).join('')
+        : '';
+
+      return `<div class="item" style="flex-direction:column;gap:var(--space-2)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>${p.name}</strong>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-size:11px;color:var(--color-text-muted)">score ${score}</span>
+            ${badge(p.status)}
+          </div>
+        </div>
+        <div style="background:var(--color-surface-dynamic);height:4px;border-radius:2px;overflow:hidden">
+          <div style="width:${score}%;height:100%;background:${scoreColor};border-radius:2px;transition:width 0.6s"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:var(--text-xs);color:var(--color-text-muted)">
+          <span>CPM: <strong style="color:var(--color-text)">${p.val ?? '—'}</strong></span>
+          <span>Baseline: <strong style="color:var(--color-text)">${p.baseline ?? '—'}</strong></span>
+          <span>Z-score: <strong style="color:var(--color-text)">${p.zscore ?? '—'}</strong></span>
+          <span>Wind: <strong style="color:var(--color-text)">${p.wind_speed ?? '—'} km/h</strong></span>
+          <span>Dir: <strong style="color:var(--color-text)">${wDir}</strong></span>
+          <span>Temp: <strong style="color:var(--color-text)">${p.temp ?? '—'}°C</strong></span>
+          <span>Rain: <strong style="color:var(--color-text)">${p.precip ?? '—'} mm</strong></span>
+          <span>RSS hits: <strong style="color:var(--color-text)">${p.rss_mentions ?? 0}</strong></span>
+        </div>
+        ${newsHTML}
+      </div>`;
+    }
+
+    // Group France plants
+    const frHi  = fr.filter(p => p.priority === 'high');
+    const frMed = fr.filter(p => p.priority === 'medium');
+    const frLow = fr.filter(p => p.priority === 'low');
 
     mainEl.innerHTML = `
       <div class="topbar"><div class="title"><h2>Plant Watchlist</h2>
-        <p>Per-plant view with radiation, weather, and news context for all monitored sites.</p></div></div>
+        <p>Individual anomaly scores, wind data, radiation readings, and matched news per plant.</p></div></div>
+
       <section class="grid">
         <article class="card span-12">
           <h3>🇺🇦 Ukraine — War-Zone High Risk</h3>
-          <p style="color:var(--color-warning);margin-bottom:var(--space-3)">Four plants under wartime conditions. Zaporizhzhia is Russian-occupied. Wind alignment with Maastricht/Traben-Trarbach is tracked in the Live Overview.</p>
-          <div class="list">${cards(ua)||'<div class="item"><small>No Ukraine data yet — kernel will fetch on next cycle.</small></div>'}</div>
+          <p style="font-size:var(--text-xs);color:var(--color-warning);margin-bottom:var(--space-3)">
+            Four plants under active wartime conditions. Zaporizhzhia occupied by Russia since 2022. Wind alignment toward Maastricht/Traben-Trarbach tracked in Live Overview.
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3)">
+            ${ua.map(plantCard).join('') || '<div class="item"><small>No Ukraine data yet.</small></div>'}
+          </div>
         </article>
       </section>
+
       <section class="grid">
-        <article class="card span-6"><h3>🇧🇪 Belgium — Priority</h3><div class="list">${cards(be)}</div></article>
-        <article class="card span-6"><h3>🇫🇷 France — Border Focus</h3><div class="list">${cards(frHi)}</div></article>
+        <article class="card span-6">
+          <h3>🇫🇷 France — Border Focus</h3>
+          <div style="display:grid;gap:var(--space-3);margin-top:var(--space-3)">${frHi.map(plantCard).join('')}</div>
+        </article>
+        <article class="card span-6">
+          <h3>🇫🇷 France — Medium Priority</h3>
+          <div style="display:grid;gap:var(--space-3);margin-top:var(--space-3)">${frMed.map(plantCard).join('')}</div>
+        </article>
       </section>
+
       <section class="grid">
-        <article class="card span-6"><h3>🇫🇷 France — Medium Priority</h3><div class="list">${cards(frMed)}</div></article>
-        <article class="card span-6"><h3>🇫🇷 France — Other Active</h3><div class="list">${cards(frLow)}</div></article>
+        <article class="card span-12">
+          <h3>🇫🇷 France — Other Active Plants</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3);margin-top:var(--space-3)">
+            ${frLow.map(plantCard).join('')}
+          </div>
+        </article>
       </section>`;
   }
 
