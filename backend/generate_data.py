@@ -25,11 +25,11 @@ from urllib.error import URLError
 # ---------------------------------------------------------------------------
 
 PLANTS = [
-    # Ukraine — War-zone high-risk
-    {"name": "Zaporizhzhia",  "lat": 47.510, "lon": 34.590, "country": "UA", "priority": "high"},
-    {"name": "South Ukraine", "lat": 47.812, "lon": 31.215, "country": "UA", "priority": "high"},
-    {"name": "Khmelnytskyi", "lat": 50.296, "lon": 26.658, "country": "UA", "priority": "high"},
-    {"name": "Rivne",         "lat": 51.387, "lon": 25.895, "country": "UA", "priority": "high"},
+    # Ukraine — War-zone high-risk (weather-only + RSS)
+    {"name": "Zaporizhzhia",  "lat": 47.510, "lon": 34.590, "country": "UA", "priority": "low"},
+    {"name": "South Ukraine", "lat": 47.812, "lon": 31.215, "country": "UA", "priority": "low"},
+    {"name": "Khmelnytskyi", "lat": 50.296, "lon": 26.658, "country": "UA", "priority": "low"},
+    {"name": "Rivne",         "lat": 51.387, "lon": 25.895, "country": "UA", "priority": "low"},
     # Belgium — Priority
     {"name": "Doel",            "lat": 51.326, "lon": 4.258,  "country": "BE", "priority": "high"},
     {"name": "Tihange",         "lat": 50.534, "lon": 5.276,  "country": "BE", "priority": "high"},
@@ -471,7 +471,7 @@ def run_kernel():
                 "wind_dir": round(wind_dir) if wind_dir is not None else None,
                 "temp": round(temp, 1) if temp is not None else None,
                 "precip": round(precip, 1) if precip is not None else None,
-                "rss_mentions": 0,
+                "rss_mentions": len([i for i in nuclear_rss if plant["name"].lower().split("-")[0] in " ".join(i.get("matched_plants", []))]) + len([i for i in nuclear_rss if any(kw in " ".join(i.get("matched_plants", [])) for kw in UKRAINE_KEYWORDS)]) if plant["country"] == "UA" else 0,
                 "sample_count": 0,
             })
 
