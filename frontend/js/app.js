@@ -1,13 +1,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
   let currentView = 'overview';
   let appData = null;
+  let historyData = [];
   const mainEl = document.querySelector('.main');
 
   const loadData = async () => {
     try {
-      const r = await fetch('./data/latest.json');
-      if (!r.ok) throw new Error('Fetch failed');
-      appData = await r.json();
+      const [latestResp, histResp] = await Promise.all([
+        fetch('./data/latest.json'),
+        fetch('./data/history.json').catch(() => null),
+      ]);
+      if (!latestResp.ok) throw new Error('Fetch failed');
+      appData = await latestResp.json();
+      if (histResp && histResp.ok) historyData = await histResp.json();
       renderView();
     } catch (e) {
       mainEl.innerHTML = `<div class="topbar"><div class="title"><h2>Loading…</h2>
@@ -19,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!appData) return;
     ({ overview:renderOverview, radiation:renderRadiation, watchlist:renderWatchlist,
        weather:renderWeather, news:renderNews, kernel:renderKernel,
-       zscore:renderZScore }[currentView] || renderOverview)();
+       zscore:renderZScore, plume:renderPlume }[currentView] || renderOverview)();
   }
 
   function badge(cls, txt) {
@@ -89,9 +94,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="list" id="event-log"></div>
         </article>
         <article class="card span-3">
-          <h3>Score Trend</h3>
+          <h3>Score Trend (12 h)</h3>
           <div class="spark" id="spark"></div>
-          <div class="tiny" style="margin-top:var(--space-3)">Per-plant z-score magnitude over the last kernel cycle.</div>
+          <div class="tiny" id="spark-label" style="margin-top:var(--space-3)">Aggregate anomaly score over the last 12 kernel cycles.</div>
         </article>
         <article class="card span-4">
           <h3>System Diagnostics</h3>
@@ -119,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     populateWindPanel(d.plants);
     populateLogs(d.logs);
-    populateSparkline(d.trend);
+    populateSparkline(historyData.length >= 2 ? historyData : null, d.trend);
     populateDiagnostics(d.connectors);
     wireButtons();
   }
@@ -239,6 +244,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       ${typeof buildZScorePanel === 'function' ? buildZScorePanel(appData.plants) : '<p>Panel not loaded.</p>'}`;
   }
 
+  // ── PLUME CALCULATOR ──────────────────────────────────────────────────────
+  function renderPlume() {
+    mainEl.innerHTML = `
+      <div class="topbar"><div class="title"><h2>Plume Calculator</h2>
+        <p>Estimated airborne transport time from each plant to Maastricht &amp; Traben-Trarbach at current wind speed.</p></div></div>
+      ${typeof buildPlumePanel === 'function' ? buildPlumePanel(appData.plants) : '<p>Panel not loaded.</p>'}`;
+  }
+
   // ── HELPERS ───────────────────────────────────────────────────────────────
   function populateWindPanel(plants) {
     const el = document.getElementById('wind-panel');
@@ -278,17 +291,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     </div>`).join('');
   }
 
-  function populateSparkline(trend) {
+  function populateSparkline(history, fallbackTrend) {
     const el = document.getElementById('spark');
-    if (!el||!trend) return;
-    el.innerHTML='';
-    trend.forEach(v=>{
-      const s=document.createElement('span');
-      s.style.height=`${Math.min(100,Math.max(5,v))}%`;
-      if(v>=85) s.style.background='var(--color-error)';
-      else if(v>=40) s.style.background='var(--color-orange)';
-      el.appendChild(s);
-    });
+    const lbl = document.getElementById('spark-label');
+    if (!el) return;
+    el.innerHTML = '';
+
+    if (history && history.length >= 2) {
+      // Real 12-h history: plot aggregate scores with timestamps
+      const vals = history.map(h => h.score);
+      vals.forEach((v, i) => {
+        const s = document.createElement('span');
+        s.style.height = `${Math.min(100, Math.max(5, v))}%`;
+        if (v >= 85) s.style.background = 'var(--color-error)';
+        else if (v >= 40) s.style.background = 'var(--color-orange)';
+        const ts = history[i].ts ? new Date(history[i].ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+        s.title = `${ts} — score ${v}`;
+        el.appendChild(s);
+      });
+      if (lbl) lbl.textContent = `${history.length} cycle${history.length!==1?'s':''} of actual history. Oldest → newest.`;
+    } else if (fallbackTrend) {
+      // Fallback: per-plant z-score proxy from latest.json
+      fallbackTrend.forEach(v => {
+        const s = document.createElement('span');
+        s.style.height = `${Math.min(100, Math.max(5, v))}%`;
+        if (v >= 85) s.style.background = 'var(--color-error)';
+        else if (v >= 40) s.style.background = 'var(--color-orange)';
+        el.appendChild(s);
+      });
+      if (lbl) lbl.textContent = 'History building — showing z-score magnitudes from this cycle.';
+    }
   }
 
   function populateDiagnostics(conn) {
@@ -331,7 +363,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const NAV_MAP = {
     'Live overview':'overview','Radiation network':'radiation',
     'Plant watchlist':'watchlist','Weather stress':'weather',
-    'News anomaly engine':'news','Agent kernel':'kernel','Z-Score explainer':'zscore',
+    'News anomaly engine':'news','Agent kernel':'kernel',
+    'Z-Score explainer':'zscore','Plume calculator':'plume',
   };
 
   document.querySelectorAll('.nav button:not(#btn-watchlist)').forEach(btn=>{

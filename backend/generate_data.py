@@ -418,7 +418,33 @@ if __name__ == "__main__":
     with open(output_file, "w") as f:
         json.dump(data, f, indent=2)
 
+    # Append to rolling 12-hour history
+    history_file = os.path.join(output_dir, "history.json")
+    try:
+        with open(history_file) as f:
+            history = json.load(f)
+        if not isinstance(history, list):
+            history = []
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+
+    snapshot = {
+        "ts": data["timestamp"],
+        "score": data["total_score"],
+        "plant_zscores": {
+            p["name"]: p["zscore"]
+            for p in data["plants"]
+            if p.get("val") is not None
+        },
+    }
+    history.append(snapshot)
+    history = history[-12:]  # keep last 12 cycles (12 hours at hourly cadence)
+
+    with open(history_file, "w") as f:
+        json.dump(history, f, indent=2)
+
     print(f"\n✓ Written to {output_file}")
+    print(f"  History entries: {len(history)}")
     print(f"  Total score: {data['total_score']}")
     print(f"  Plants: {len(data['plants'])}")
     print(f"  Signals: {len(data['signals'])}")

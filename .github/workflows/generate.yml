@@ -34,6 +34,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "Nuclear Sentinel Bot"
-        git add frontend/data/latest.json
+        git add frontend/data/latest.json frontend/data/history.json
         git diff --cached --quiet || git commit -m "chore: update monitor data [skip ci]"
         git push
