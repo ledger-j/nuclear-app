@@ -315,9 +315,18 @@ def run_kernel():
             "sample_count": len(cpm_values),
         })
 
-    # Add low-priority plants with no detailed data
+    # Add low-priority plants with wind data (skip expensive Safecast/RSS)
     for plant in PLANTS:
         if plant["priority"] == "low" and not any(p["name"] == plant["name"] for p in plant_results):
+            print(f"  Weather-only for {plant['name']}…")
+            weather = fetch_weather(plant["lat"], plant["lon"])
+            wind_speed = wind_dir = temp = precip = None
+            if weather:
+                connector_status["open_meteo"] = "online"
+                wind_speed = weather.get("wind_speed_10m")
+                wind_dir = weather.get("wind_direction_10m")
+                temp = weather.get("temperature_2m")
+                precip = weather.get("precipitation", 0) or weather.get("rain", 0)
             plant_results.append({
                 "name": plant["name"],
                 "lat": plant["lat"],
@@ -329,10 +338,10 @@ def run_kernel():
                 "val": None,
                 "unit": "cpm",
                 "zscore": 0,
-                "wind_speed": None,
-                "wind_dir": None,
-                "temp": None,
-                "precip": None,
+                "wind_speed": round(wind_speed, 1) if wind_speed is not None else None,
+                "wind_dir": round(wind_dir) if wind_dir is not None else None,
+                "temp": round(temp, 1) if temp is not None else None,
+                "precip": round(precip, 1) if precip is not None else None,
                 "rss_mentions": 0,
                 "sample_count": 0,
             })
