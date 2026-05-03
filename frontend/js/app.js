@@ -34,13 +34,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── OVERVIEW ──────────────────────────────────────────────────────────────
   function renderOverview() {
     const d = appData;
-    const sc = d.total_score >= 85 ? 'risk' : d.total_score >= 40 ? 'watch' : 'ok';
-    const lbl = d.total_score >= 85 ? 'Alert' : d.total_score >= 40 ? 'Watch' : 'Normal';
+    // Corrected score: guard against multi-plant z-stacking inflation from backend
+    const plantsWithZ = (d.plants||[]).filter(p => p.zscore != null && p.val != null);
+    const maxAbsZ     = plantsWithZ.length ? Math.max(...plantsWithZ.map(p => Math.abs(p.zscore))) : 0;
+    const rssTotal    = (d.plants||[]).reduce((s, p) => s + (p.rss_mentions||0), 0);
+    const correctedScore = (d.total_score > 50 && maxAbsZ < 2 && !rssTotal)
+      ? Math.min(35, Math.round(maxAbsZ * 20))
+      : d.total_score;
+    const sc  = correctedScore >= 70 ? 'risk' : correctedScore >= 35 ? 'watch' : 'ok';
+    const lbl = correctedScore >= 70 ? 'Alert' : correctedScore >= 35 ? 'Watch' : 'Normal';
+
     const online = Object.values(d.connectors||{}).filter(v=>v==='online').length;
     const total  = Object.keys(d.connectors||{}).length;
     const risk   = (d.plants||[]).filter(p=>p.status==='risk');
     const watch  = (d.plants||[]).filter(p=>p.status==='watch');
     const ts     = d.timestamp ? new Date(d.timestamp).toLocaleString() : '—';
+
+    // Data freshness
+    const ageMs   = d.timestamp ? Date.now() - new Date(d.timestamp).getTime() : 0;
+    const ageH    = Math.floor(ageMs / 3600000);
+    const ageM    = Math.floor((ageMs % 3600000) / 60000);
+    const ageLabel = !d.timestamp ? '—' : ageH > 0 ? `${ageH}h ${ageM}m ago` : `${ageM}m ago`;
+    const stale   = ageMs > 7 * 3600000; // stale if > 7 h (runs every 6 h)
+
+    // Ukraine wind alignment toward Maastricht
+    const uaAligned = typeof UKRAINE_PLANTS_DATA !== 'undefined' && typeof _bearingTo === 'function'
+      ? UKRAINE_PLANTS_DATA.filter(pd => {
+          const live = (d.plants||[]).find(p => p.name === pd.name) || {};
+          if (live.wind_dir == null) return false;
+          const bear  = _bearingTo(pd.lat, pd.lon, 50.851, 5.691);
+          const delta = Math.abs(((live.wind_dir - bear) + 360) % 360);
+          return delta < 45 || delta > 315;
+        }).length
+      : 0;
+
     const theme  = document.documentElement.getAttribute('data-theme');
 
     mainEl.innerHTML = `
@@ -54,26 +81,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       <section class="grid">
         <article class="card span-3 metric">
-          <span class="label">Aggregate Score</span>
-          <span class="value">${d.total_score}</span>
+          <span class="label">Risk Signal</span>
+          <span class="value">${correctedScore}</span>
           ${badge(sc, lbl)}
+          <p style="font-size:var(--text-xs)">max z-score: ${maxAbsZ.toFixed(1)} · RSS hits: ${rssTotal}</p>
         </article>
         <article class="card span-3 metric">
-          <span class="label">Sources Online</span>
-          <span class="value">${online}/${total}</span>
-          ${badge(online===total?'ok':'watch', online===total?'All connected':'Partial')}
+          <span class="label">Data Freshness</span>
+          <span class="value" style="font-size:var(--text-lg)">${ageLabel}</span>
+          ${badge(stale ? 'watch' : 'ok', stale ? 'Stale' : `${online}/${total} sources`)}
+          <p style="font-size:var(--text-xs)">${ts}</p>
         </article>
         <article class="card span-3 metric">
-          <span class="label">Risk Plants</span>
-          <span class="value">${risk.length}</span>
-          ${badge(risk.length?'risk':'ok')}
-          <p>${risk.map(p=>p.name).join(', ')||'None'}</p>
+          <span class="label">Plant Alerts</span>
+          <span class="value">${risk.length + watch.length}</span>
+          ${badge(risk.length ? 'risk' : watch.length ? 'watch' : 'ok', risk.length ? `${risk.length} at risk` : watch.length ? `${watch.length} watch` : 'All clear')}
+          <p style="font-size:var(--text-xs)">${[...risk.map(p=>p.name+'⚠'), ...watch.map(p=>p.name)].join(', ') || 'None'}</p>
         </article>
         <article class="card span-3 metric">
-          <span class="label">Watch Plants</span>
-          <span class="value">${watch.length}</span>
-          ${badge(watch.length?'watch':'ok')}
-          <p>${watch.map(p=>p.name).join(', ')||'None'}</p>
+          <span class="label">UA Wind → Maastricht</span>
+          <span class="value">${uaAligned}/4</span>
+          ${badge(uaAligned >= 2 ? 'risk' : uaAligned >= 1 ? 'watch' : 'ok', uaAligned >= 1 ? `${uaAligned} aligned` : 'None aligned')}
+          <p style="font-size:var(--text-xs)">Ukraine plants within 45° bearing of Maastricht</p>
         </article>
       </section>
       <section class="grid">

@@ -356,8 +356,21 @@ def run_kernel():
                 "sample_count": 0,
             })
 
-    # 3. Global score
-    total_score = round(signal_score(all_signals)) if all_signals else 0
+    # 3. Global score — per-plant weighted blend, prevents multi-plant stacking to 100
+    # signal_score() was designed for a single plant; summing all plants inflates it.
+    per_plant_scores = []
+    for res in plant_results:
+        plant_sigs = [s for s in all_signals if s.region == res["name"]]
+        if plant_sigs:
+            per_plant_scores.append(signal_score(plant_sigs))
+
+    if per_plant_scores:
+        max_ps   = max(per_plant_scores)
+        mean_ps  = statistics.mean(per_plant_scores)
+        # Worst plant drives 70% of the score; average drives 30%
+        total_score = round(min(100, 0.7 * max_ps + 0.3 * mean_ps))
+    else:
+        total_score = 0
 
     # 4. Build trend (simple: use plant scores as proxy)
     scored_plants = [p for p in plant_results if p["val"] is not None]
