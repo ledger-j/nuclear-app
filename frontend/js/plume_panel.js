@@ -107,9 +107,8 @@ function buildPlumePanel(plants) {
 }
 
 function buildPlumeMap(rows) {
-  // Reuse the same bounding box as the SVG map
+  // Reuse the same bounding box as the SVG map (globals from map_data.js)
   const W = 460, H = 340;
-  const LON_MIN = -1, LON_MAX = 9, LAT_MIN = 48, LAT_MAX = 52.5;
 
   function xy(lon, lat) {
     return {
@@ -154,12 +153,12 @@ function buildPlumeMap(rows) {
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:220px;background:#0d1b2a;border-radius:10px">
     <rect width="${W}" height="${H}" fill="#0d1b2a" rx="10"/>
     <!-- Grid -->
-    ${[49, 50, 51, 52].map(lat => {
+    ${[43, 45, 47, 49, 51].map(lat => {
       const { y } = xy(0, lat);
       return `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#ffffff08" stroke-width="1"/>
               <text x="2" y="${y - 2}" font-size="8" fill="#ffffff20">${lat}°N</text>`;
     }).join('')}
-    ${[0, 2, 4, 6, 8].map(lon => {
+    ${[-4, 0, 4, 8].map(lon => {
       const { x } = xy(lon, 0);
       return `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#ffffff08" stroke-width="1"/>`;
     }).join('')}

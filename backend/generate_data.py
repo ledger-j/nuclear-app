@@ -13,7 +13,9 @@ import os
 import statistics
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+import csv
+import io
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 from urllib.request import urlopen, Request
 from urllib.error import URLError
@@ -153,6 +155,103 @@ PLANT_KEYWORDS = [p["name"].lower().split("-")[0] for p in PLANTS]  # first word
 UKRAINE_KEYWORDS = ["zaporizhzhia", "zaporizhia", "znpp", "rivne", "khmelnytsk", "south ukraine",
                     "enerhodar", "ukraine nuclear", "ukrainian nuclear", "iaea ukraine"]
 
+# ---- EURDEP (EU official dosimeter corridor, no key needed) ----
+
+# Eastern corridor: Poland, Czech Republic, Slovakia, Austria, Ukraine border
+_EURDEP_BOUNDS = {"lat_min": 46.0, "lat_max": 56.0, "lon_min": 14.0, "lon_max": 40.0}
+
+def fetch_eurdep_corridor(hours_back: int = 3) -> dict | None:
+    """
+    Fetch EURDEP gamma dose-rate CSV for the eastern corridor between
+    Ukrainian plants and Western Europe. Computes spatial z-scores across
+    current station readings (inter-station anomaly detection).
+    Returns None on fetch failure or fewer than 5 valid readings.
+    """
+    now = datetime.now(timezone.utc)
+    end_str   = now.strftime("%Y-%m-%dT%H:%M:%S")
+    start_str = (now - timedelta(hours=hours_back)).strftime("%Y-%m-%dT%H:%M:%S")
+    url = (
+        "https://eurdep.jrc.ec.europa.eu/eurdep/map/exportCSV"
+        f"?startDate={start_str}&endDate={end_str}"
+    )
+    req = Request(url, headers={"User-Agent": "NuclearSentinel/1.0"})
+    try:
+        with urlopen(req, timeout=30) as resp:
+            csv_text = resp.read(2 * 1024 * 1024).decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"  [WARN] EURDEP fetch failed: {e}")
+        return None
+
+    if not csv_text or len(csv_text) < 100:
+        return None
+
+    bounds = _EURDEP_BOUNDS
+    readings = []
+    try:
+        reader = csv.DictReader(io.StringIO(csv_text))
+        for row in reader:
+            norm = {k.strip().lower(): (v or "").strip() for k, v in row.items()}
+            try:
+                lat      = float(norm.get("latitude")  or norm.get("lat")  or 0)
+                lon      = float(norm.get("longitude") or norm.get("lon")  or 0)
+                val      = float(norm.get("value")     or 0)
+                validity = int(float(norm.get("validity") or 1))
+            except (ValueError, TypeError):
+                continue
+            if not (bounds["lat_min"] <= lat <= bounds["lat_max"] and
+                    bounds["lon_min"] <= lon <= bounds["lon_max"]):
+                continue
+            if validity <= 0 or val <= 0 or val > 50_000:  # >50 μSv/h = instrumentation fault
+                continue
+            # Normalise mSv/h and μSv/h to nSv/h
+            unit = norm.get("unit", "nsv/h").lower()
+            if "msv" in unit:
+                val *= 1_000_000
+            elif "μsv" in unit or "usv" in unit or "microsv" in unit:
+                val *= 1_000
+            readings.append({
+                "station": norm.get("stationid") or norm.get("station_id") or "?",
+                "lat": round(lat, 3),
+                "lon": round(lon, 3),
+                "value": round(val, 2),
+            })
+    except Exception as e:
+        print(f"  [WARN] EURDEP CSV parse error: {e}")
+        return None
+
+    if len(readings) < 5:
+        print(f"  [INFO] EURDEP: only {len(readings)} valid corridor readings — skipping")
+        return None
+
+    values    = [r["value"] for r in readings]
+    mean_val  = statistics.mean(values)
+    stdev_val = statistics.stdev(values) if len(values) >= 2 else 1.0
+    max_val   = max(values)
+
+    for r in readings:
+        r["zscore"] = round((r["value"] - mean_val) / stdev_val, 2) if stdev_val > 0 else 0.0
+
+    alert_stations = sorted(
+        [r for r in readings if r["zscore"] >= 2.0],
+        key=lambda r: r["zscore"], reverse=True,
+    )
+    max_zscore = max(r["zscore"] for r in readings)
+
+    print(f"  [INFO] EURDEP: {len(readings)} corridor stations, max z={max_zscore:.2f}, max={max_val:.1f} nSv/h")
+    return {
+        "stations":      len(readings),
+        "mean_nsvh":     round(mean_val, 1),
+        "max_nsvh":      round(max_val, 1),
+        "max_zscore":    round(max_zscore, 2),
+        "alert_stations": [
+            {"station": r["station"], "lat": r["lat"], "lon": r["lon"],
+             "value": r["value"], "zscore": r["zscore"]}
+            for r in alert_stations[:5]
+        ],
+        "updated": now.isoformat(),
+    }
+
+
 def fetch_rss_notices() -> list[dict]:
     """Fetch and parse RSS feeds, returning items that mention plant names."""
     items = []
@@ -199,12 +298,32 @@ def run_kernel():
     all_signals: list[Signal] = []
     plant_results = []
     connector_status = {
-        "safecast": "offline",
+        "safecast":  "offline",
         "open_meteo": "offline",
         "rss_feeds": "offline",
+        "eurdep":    "offline",
     }
 
-    # 1. Fetch RSS notices (once for all plants)
+    # 1. Fetch EURDEP corridor (fast, independent of plant loop)
+    print("  Fetching EURDEP corridor data…")
+    eurdep_data = fetch_eurdep_corridor()
+    if eurdep_data:
+        connector_status["eurdep"] = "online"
+        if eurdep_data["max_zscore"] >= 1.5:
+            top = eurdep_data["alert_stations"][0] if eurdep_data["alert_stations"] else None
+            region = top["station"] if top else "EURDEP-Corridor"
+            all_signals.append(Signal(
+                source="EURDEP",
+                region=region,
+                metric="gamma_nsvh_corridor",
+                value=round(eurdep_data["max_nsvh"], 1),
+                baseline=round(eurdep_data["mean_nsvh"], 1),
+                timestamp=now.isoformat(),
+                confidence=round(min(1.0, eurdep_data["max_zscore"] / 4.0), 2),
+                kind="measurement",
+            ))
+
+    # 2. Fetch RSS notices (once for all plants)
     print("  Fetching RSS feeds…")
     rss_items = fetch_rss_notices()
     if rss_items:
@@ -389,6 +508,19 @@ def run_kernel():
             logs.append({"time": now.strftime("%H:%M"), "level": "watch",
                          "msg": f"{p['name']}: z-score {p['zscore']}. Watching."})
 
+    if eurdep_data:
+        alert_count = len(eurdep_data["alert_stations"])
+        level = "watch" if alert_count else "ok"
+        msg = (
+            f"EURDEP: {eurdep_data['stations']} corridor stations · "
+            f"max {eurdep_data['max_nsvh']} nSv/h · z={eurdep_data['max_zscore']}"
+            + (f" · {alert_count} alert station{'s' if alert_count != 1 else ''}" if alert_count else "")
+        )
+        logs.append({"time": now.strftime("%H:%M"), "level": level, "msg": msg})
+    else:
+        logs.append({"time": now.strftime("%H:%M"), "level": "watch",
+                     "msg": "EURDEP: corridor data unavailable this cycle."})
+
     if connector_status["safecast"] == "online":
         logs.append({"time": now.strftime("%H:%M"), "level": "ok",
                      "msg": f"Safecast sync complete. {sum(p['sample_count'] for p in plant_results)} readings ingested."})
@@ -433,8 +565,9 @@ def run_kernel():
         "logs": logs,
         "summary": summary,
         "connectors": connector_status,
-        "rss_items": rss_display,
-        "signals": [asdict(s) for s in all_signals],
+        "rss_items":       rss_display,
+        "signals":         [asdict(s) for s in all_signals],
+        "eurdep_corridor": eurdep_data,
     }
 
     return payload

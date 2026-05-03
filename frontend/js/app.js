@@ -206,6 +206,41 @@ document.addEventListener('DOMContentLoaded', async () => {
       <td>${p.baseline??'—'}</td><td>${p.zscore??'—'}</td>
       <td>${badge(p.status)}</td><td>${p.sample_count??0}</td>
     </tr>`).join('');
+
+    const ec = appData.eurdep_corridor;
+    const eurdepHTML = ec ? (() => {
+      const zCls = ec.max_zscore >= 2 ? 'risk' : ec.max_zscore >= 1 ? 'watch' : 'ok';
+      const alertRows = (ec.alert_stations||[]).map(s =>
+        `<tr><td>${s.station}</td><td>${s.lat}, ${s.lon}</td>
+         <td>${s.value} nSv/h</td>
+         <td><span class="badge risk" style="font-size:10px">z=${s.zscore}</span></td></tr>`
+      ).join('');
+      return `<article class="card span-12" style="margin-top:var(--space-4)">
+        <h3>EURDEP Corridor — Eastern Europe Dosimeters</h3>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">
+          Official JRC sensors: Poland · Czech Republic · Slovakia · Austria · Ukraine border.
+          Z-scores are spatial (inter-station), not temporal.
+        </p>
+        <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;margin:var(--space-3) 0">
+          <div><span style="font-size:var(--text-xs);color:var(--color-text-muted)">STATIONS</span>
+            <div style="font-size:var(--text-xl);font-weight:700">${ec.stations}</div></div>
+          <div><span style="font-size:var(--text-xs);color:var(--color-text-muted)">MEAN</span>
+            <div style="font-size:var(--text-xl);font-weight:700">${ec.mean_nsvh} nSv/h</div></div>
+          <div><span style="font-size:var(--text-xs);color:var(--color-text-muted)">MAX</span>
+            <div style="font-size:var(--text-xl);font-weight:700">${ec.max_nsvh} nSv/h</div></div>
+          <div><span style="font-size:var(--text-xs);color:var(--color-text-muted)">MAX Z</span>
+            <div style="font-size:var(--text-xl);font-weight:700">${badge(zCls, 'z='+ec.max_zscore)}</div></div>
+        </div>
+        ${alertRows ? `<h4 style="margin-bottom:var(--space-2)">Elevated stations (z ≥ 2)</h4>
+          <table class="table"><thead><tr>
+            <th>Station</th><th>Coordinates</th><th>Reading</th><th>Z-score</th>
+          </tr></thead><tbody>${alertRows}</tbody></table>` : '<p style="font-size:var(--text-xs)">No stations above z=2 threshold.</p>'}
+      </article>`;
+    })() : `<article class="card span-12" style="margin-top:var(--space-4)">
+        <h3>EURDEP Corridor</h3>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">Corridor data unavailable this cycle.</p>
+      </article>`;
+
     mainEl.innerHTML = `
       <div class="topbar"><div class="title"><h2>Radiation Network</h2>
         <p>Safecast community sensor readings near each plant. Z-score = deviation from local baseline.</p></div></div>
@@ -213,7 +248,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <table class="table"><thead><tr>
           <th>Plant</th><th>Latest avg</th><th>Baseline (median)</th><th>Z-score</th><th>Status</th><th>Samples</th>
         </tr></thead><tbody>${rows||'<tr><td colspan="6">No radiation data yet.</td></tr>'}</tbody></table>
-      </article></section>`;
+      </article>
+      ${eurdepHTML}
+      </section>`;
   }
 
   // ── WATCHLIST ─────────────────────────────────────────────────────────────
@@ -526,7 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function populateDiagnostics(conn) {
     const el = document.getElementById('diagnostics');
     if (!el||!conn) return;
-    const labels={safecast:'Safecast Radiation',open_meteo:'Open-Meteo Weather',rss_feeds:'ASN/FANC RSS'};
+    const labels={safecast:'Safecast Radiation',open_meteo:'Open-Meteo Weather',rss_feeds:'ASN/FANC RSS',eurdep:'EURDEP Corridor'};
     el.innerHTML=Object.entries(conn).map(([k,v])=>`<div class="step" style="display:flex;justify-content:space-between">
       <strong>${labels[k]||k}</strong>${badge(v==='online'?'ok':'watch',v)}
     </div>`).join('');
