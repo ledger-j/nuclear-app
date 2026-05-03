@@ -127,34 +127,6 @@ function buildUkraineMap(plantsJSON) {
       <circle cx="${Math.round(ex)}" cy="${Math.round(ey)}" r="2" fill="${color}" opacity="${opacity}"/>`;
   }
 
-  let plantSVG = '';
-  UKRAINE_PLANTS_DATA.forEach(pd => {
-    const {x, y} = lonLatToXY_UA(pd.lon, pd.lat);
-    const live = liveMap[pd.name] || {};
-    const status = live.status || 'ok';
-    const col = statusColor[status];
-    const zs = live.zscore != null ? live.zscore : null;
-    const ws = live.wind_speed, wd = live.wind_dir;
-    const r = 8;
-
-    const wColor = !ws ? '#4f98a3' : ws > 30 ? '#d163a7' : ws > 15 ? '#fdab43' : '#4f98a3';
-    const wText  = ws != null ? `${ws} km/h ${wd != null ? dirArrowChar(wd) : ''}` : 'no wind data';
-
-    plantSVG += `<g class="ua-plant-marker" data-plant="${pd.name}" style="cursor:pointer">
-      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
-        stroke="rgba(0,0,0,0.5)" stroke-width="1.5" opacity="0.95">
-        <animate attributeName="r" values="${r};${r+3};${r}" dur="2.8s" repeatCount="indefinite"/>
-      </circle>
-      ${bearingGuide(x, y, pd.lat, pd.lon, wd)}
-      ${ws != null && wd != null ? windArrowUA(x, y, ws, wd) : ''}
-      <text x="${x+12}" y="${y+4}" font-size="12" fill="#cdccca"
-        font-family="Satoshi,Inter,sans-serif" font-weight="600">${pd.name}${zs !== null ? ' (z:'+zs+')' : ''}</text>
-      <text x="${x+12}" y="${y+18}" font-size="10" fill="#9a9996"
-        font-family="sans-serif">${pd.reactors} reactors</text>
-      <text x="${x+12}" y="${y+30}" font-size="10" fill="${wColor}"
-        font-family="sans-serif" opacity="0.9">${wText}</text>
-    </g>`;
-  });
 
   let citySVG = '';
   UA_CITIES_INTERNAL.forEach(c => {
@@ -191,7 +163,6 @@ function buildUkraineMap(plantsJSON) {
     <path d="${CRIMEA_PATH}" fill="#2d1a1a" stroke="#4d3030" stroke-width="1" stroke-dasharray="5,3"/>
     ${latLines}
     ${lonLines}
-    ${plantSVG}
     ${citySVG}
     <!-- Bearing legend label at left edge -->
     <text x="6" y="18" font-size="10" fill="#fdab43" font-family="sans-serif" font-weight="600">◀ Maastricht / Traben-Trarbach (west, ~1400–2200 km)</text>

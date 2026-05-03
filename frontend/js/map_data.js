@@ -146,38 +146,6 @@ function buildSVGMap(plantsJSON) {
     <circle cx="${ex}" cy="${ey}" r="2.5" fill="${color}" opacity="0.8"/>`;
   }
 
-  let plantSVG = '';
-  PLANTS_DATA.forEach(pd => {
-    const {x, y} = lonLatToXY(pd.lon, pd.lat);
-    const live = liveMap[pd.name] || {};
-    const status = live.status || 'ok';
-    const col = statusColor[status];
-    const zs = live.zscore != null ? live.zscore : null;
-    const label = pd.name.split('-')[0];
-    const ws = live.wind_speed, wd = live.wind_dir;
-    const r = pd.priority === 'high' ? 7 : pd.priority === 'medium' ? 5 : 3.5;
-    const pulseVals = pd.priority === 'high' ? `${r};${r+2};${r}` : `${r};${r+1};${r}`;
-    const dur = (2 + Math.random() * 2).toFixed(1);
-
-    const isLow = pd.priority === 'low';
-    const labelSize  = isLow ? '9'  : '11';
-    const labelColor = isLow ? '#9a9996' : '#cdccca';
-    const windColor  = !ws ? '#4f98a3' : ws > 30 ? '#d163a7' : ws > 15 ? '#fdab43' : '#4f98a3';
-    const zLabel     = zs !== null && !isLow ? ` (z:${zs})` : '';
-    const windLabel  = ws != null ? `${ws}km/h ${wd != null ? dirArrowChar(wd) : ''}` : '';
-
-    plantSVG += `<g class="plant-marker" data-plant="${pd.name}" style="cursor:pointer">
-      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
-        stroke="rgba(0,0,0,0.45)" stroke-width="1.5" opacity="0.95">
-        <animate attributeName="r" values="${pulseVals}" dur="${dur}s" repeatCount="indefinite"/>
-      </circle>
-      <text x="${x + r + 3}" y="${y + 4}" font-size="${labelSize}" fill="${labelColor}"
-        font-family="Satoshi,Inter,sans-serif">${label}${zLabel}</text>
-      ${ws != null ? `<text x="${x + r + 3}" y="${y + 14}" font-size="9" fill="${windColor}"
-        font-family="sans-serif" opacity="0.85">${windLabel}</text>` : ''}
-      ${ws != null && wd != null ? windArrow(x, y, ws, wd) : ''}
-    </g>`;
-  });
 
   let citySVG = '';
   CITIES.forEach(c => {
@@ -221,7 +189,6 @@ function buildSVGMap(plantsJSON) {
     <path d="${BELGIUM_PATH}" fill="#1a1f2d" stroke="#2d3550" stroke-width="1"/>
     ${latLines}
     ${lonLines}
-    ${plantSVG}
     ${citySVG}
     <g transform="translate(10,${MAP_H-62})">
       <rect width="162" height="57" rx="6" fill="rgba(0,0,0,0.6)"/>

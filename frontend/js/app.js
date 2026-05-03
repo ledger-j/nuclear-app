@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     mainEl.innerHTML = `
       <div class="topbar">
-        <div class="title"><h2>Live Overview</h2><p>Last kernel run: ${ts}</p></div>
+        <div class="title"><h2>Live Overview</h2><p>Last updated: <strong>${ts}</strong> · 4× daily (00:00, 06:00, 12:00, 18:00 UTC)</p></div>
         <div class="actions">
           <button class="btn primary" id="btn-scan">↻ Refresh scan</button>
           <button class="btn" id="btn-export">↓ Export rules</button>
@@ -77,27 +77,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         </article>
       </section>
       <section class="grid">
-        <article class="card span-9">
-          <h3>Ukraine Nuclear Map</h3>
-          <p>Four at-risk plants. Dashed arrows = bearing to Maastricht (red when wind-aligned). Solid arrows = current wind vector.</p>
-          <div id="ua-mapbox" style="width:100%;height:420px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
-        </article>
-        <article class="card span-3">
-          <h3>Wind → West</h3>
-          <p style="font-size:var(--text-xs)">Bearing vs. wind for Maastricht &amp; Traben-Trarbach.</p>
-          <div class="list" id="ua-wind-panel" style="margin-top:var(--space-3)"></div>
+        <article class="card span-12">
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-start">
+            <div style="flex:3;min-width:0">
+              <h3>Ukraine Nuclear Map</h3>
+              <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)">War-zone plants · Dashed = bearing to Maastricht · Red = wind-aligned</p>
+              <div id="ua-mapbox" style="width:100%;height:520px;border-radius:12px;overflow:hidden"></div>
+            </div>
+            <div style="flex:1;min-width:180px">
+              <h3 style="margin-bottom:var(--space-3)">Ukraine Plants</h3>
+              <div class="list" id="ua-plant-panel"></div>
+            </div>
+          </div>
         </article>
       </section>
       <section class="grid">
-        <article class="card span-9">
-          <h3>France &amp; Neighbours Nuclear Map</h3>
-          <p>${d.summary||''}</p>
-          <div id="mapbox" style="width:100%;height:440px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
-        </article>
-        <article class="card span-3">
-          <h3>Wind Transport Risk</h3>
-          <p style="font-size:var(--text-xs)">Highest wind → Maastricht &amp; Traben-Trarbach.</p>
-          <div id="wind-panel" style="margin-top:var(--space-3)"></div>
+        <article class="card span-12">
+          <div style="display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:flex-start">
+            <div style="flex:3;min-width:0">
+              <h3>France &amp; Neighbours Nuclear Map</h3>
+              <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)">${d.summary||''}</p>
+              <div id="mapbox" style="width:100%;height:540px;border-radius:12px;overflow:hidden"></div>
+            </div>
+            <div style="flex:1;min-width:180px">
+              <h3 style="margin-bottom:var(--space-3)">Plants</h3>
+              <div class="list" id="fr-plant-panel" style="max-height:540px;overflow-y:auto"></div>
+            </div>
+          </div>
         </article>
       </section>
       <section class="grid">
@@ -134,10 +140,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    const uaWind = document.getElementById('ua-wind-panel');
-    if (uaWind && typeof buildUkraineWindAlignment === 'function') {
-      uaWind.innerHTML = buildUkraineWindAlignment(d.plants);
-    }
+    const uaPlantEl = document.getElementById('ua-plant-panel');
+    if (uaPlantEl) uaPlantEl.innerHTML = buildUkrainePlantPanel(d.plants);
 
     // inject France SVG map
     const box = document.getElementById('mapbox');
@@ -157,7 +161,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    populateWindPanel(d.plants);
+    const frPlantEl = document.getElementById('fr-plant-panel');
+    if (frPlantEl) frPlantEl.innerHTML = buildFrancePlantPanel(d.plants);
     populateLogs(d.logs);
     populateSparkline(historyData.length >= 2 ? historyData : null, d.trend);
     populateDiagnostics(d.connectors);
@@ -360,6 +365,52 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
+  function buildUkrainePlantPanel(plants) {
+    if (typeof UKRAINE_PLANTS_DATA === 'undefined') return '<p class="tiny">No data.</p>';
+    return UKRAINE_PLANTS_DATA.map(pd => {
+      const live = (plants||[]).find(p => p.name === pd.name) || {};
+      const ws = live.wind_speed, wd = live.wind_dir;
+      const status = live.status || 'ok';
+      const bear = typeof _bearingTo === 'function'
+        ? Math.round(_bearingTo(pd.lat, pd.lon, 50.851, 5.691)) : null;
+      const delta = wd != null && bear != null
+        ? Math.round(Math.abs(((wd - bear) + 360) % 360)) : null;
+      const aligned = delta != null && (delta < 45 || delta > 315);
+      const borderStyle = aligned
+        ? 'border-color:var(--color-error);background:color-mix(in oklab,var(--color-error) 6%,var(--color-surface-2))' : '';
+      return `<div class="item" style="flex-direction:column;gap:3px;${borderStyle}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:var(--text-xs)">${pd.name}</strong>
+          ${badge(status)}
+        </div>
+        <small>${pd.reactors} reactors</small>
+        <small>Wind: ${ws != null ? ws+' km/h @ '+wd+'°' : '—'}</small>
+        ${aligned ? `<small style="color:var(--color-error)">⚠ Wind → Maastricht (Δ${delta}°)</small>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function buildFrancePlantPanel(plants) {
+    if (typeof PLANTS_DATA === 'undefined') return '<p class="tiny">No data.</p>';
+    const priority = ['high', 'medium', 'low'];
+    const sorted = [...PLANTS_DATA].sort((a, b) =>
+      priority.indexOf(a.priority) - priority.indexOf(b.priority));
+    return sorted.map(pd => {
+      const live = (plants||[]).find(p => p.name === pd.name) || {};
+      const ws = live.wind_speed, wd = live.wind_dir;
+      const status = live.status || 'ok';
+      const arrow = wd != null ? dirArrow(wd) : '';
+      const flag = pd.country === 'BE' ? '🇧🇪' : '🇫🇷';
+      return `<div class="item" style="flex-direction:column;gap:3px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:var(--text-xs)">${flag} ${pd.name}</strong>
+          ${badge(status)}
+        </div>
+        <small>${ws != null ? ws+' km/h '+arrow : 'no wind'} · ${pd.priority}</small>
+      </div>`;
+    }).join('');
+  }
+
   function populateWindPanel(plants) {
     const el = document.getElementById('wind-panel');
     if (!el || !plants) return;
