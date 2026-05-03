@@ -146,6 +146,57 @@ function buildSVGMap(plantsJSON) {
     <circle cx="${ex}" cy="${ey}" r="2.5" fill="${color}" opacity="0.8"/>`;
   }
 
+  let plantSVG = '';
+  PLANTS_DATA.forEach(pd => {
+    const {x, y} = lonLatToXY(pd.lon, pd.lat);
+    const live = liveMap[pd.name] || {};
+    const status = live.status || 'ok';
+    const col = statusColor[status];
+    const zsRaw = live.zscore != null ? Math.abs(live.zscore) : 0;
+    const zs = live.zscore != null ? parseFloat(live.zscore).toFixed(1) : '—';
+    const ws = live.wind_speed, wd = live.wind_dir;
+    const r = pd.priority === 'high' ? 7 : pd.priority === 'medium' ? 5 : 3.5;
+    const pulseVals = `${r};${r+(pd.priority==='high'?2:1)};${r}`;
+    const dur = (2 + Math.random() * 2).toFixed(1);
+
+    if (pd.priority === 'low') {
+      const short = pd.name.split('-')[0].split(' ')[0];
+      plantSVG += `<g class="plant-marker" data-plant="${pd.name}" style="cursor:pointer">
+        <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
+          stroke="rgba(0,0,0,0.4)" stroke-width="1" opacity="0.75">
+          <animate attributeName="r" values="${pulseVals}" dur="${dur}s" repeatCount="indefinite"/>
+        </circle>
+        <text x="${x+r+2}" y="${y+3}" font-size="8" fill="#666562" font-family="sans-serif">${short}</text>
+      </g>`;
+      return;
+    }
+
+    const zsColor = zsRaw > 2 ? '#d163a7' : zsRaw > 1 ? '#fdab43' : '#9a9996';
+    const windLine = ws != null ? `${ws} km/h ${dirArrowChar(wd ?? 0)}` : '—';
+    const statusLabel = status === 'risk' ? 'Risk' : status === 'watch' ? 'Watch' : 'ok';
+    const label = pd.name.split('-')[0];
+
+    const lx = x + r + 4;
+    const ly = y < 20 ? y + 6 : y - 10;
+
+    plantSVG += `<g class="plant-marker" data-plant="${pd.name}" style="cursor:pointer">
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
+        stroke="rgba(0,0,0,0.45)" stroke-width="1.5" opacity="0.95">
+        <animate attributeName="r" values="${pulseVals}" dur="${dur}s" repeatCount="indefinite"/>
+      </circle>
+      ${ws != null && wd != null ? windArrow(x, y, ws, wd) : ''}
+      <rect x="${lx}" y="${ly}" width="120" height="52" rx="3"
+        fill="rgba(0,0,0,0.62)" stroke="rgba(255,255,255,0.07)" stroke-width="0.5"/>
+      <text x="${lx+5}" y="${ly+12}" font-size="10" fill="${col}"
+        font-family="Satoshi,sans-serif" font-weight="600">${label}</text>
+      <text x="${lx+5}" y="${ly+24}" font-size="8" fill="${ws != null ? '#5591c7' : '#666562'}"
+        font-family="sans-serif">• ${windLine}</text>
+      <text x="${lx+5}" y="${ly+35}" font-size="8" fill="${zsColor}"
+        font-family="sans-serif">• z: ${zs}</text>
+      <text x="${lx+5}" y="${ly+46}" font-size="8" fill="${col}"
+        font-family="sans-serif">• ${statusLabel}</text>
+    </g>`;
+  });
 
   let citySVG = '';
   CITIES.forEach(c => {
@@ -189,6 +240,7 @@ function buildSVGMap(plantsJSON) {
     <path d="${BELGIUM_PATH}" fill="#1a1f2d" stroke="#2d3550" stroke-width="1"/>
     ${latLines}
     ${lonLines}
+    ${plantSVG}
     ${citySVG}
     <g transform="translate(10,${MAP_H-62})">
       <rect width="162" height="57" rx="6" fill="rgba(0,0,0,0.6)"/>

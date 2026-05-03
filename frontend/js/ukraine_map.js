@@ -127,6 +127,46 @@ function buildUkraineMap(plantsJSON) {
       <circle cx="${Math.round(ex)}" cy="${Math.round(ey)}" r="2" fill="${color}" opacity="${opacity}"/>`;
   }
 
+  let plantSVG = '';
+  UKRAINE_PLANTS_DATA.forEach(pd => {
+    const {x, y} = lonLatToXY_UA(pd.lon, pd.lat);
+    const live = liveMap[pd.name] || {};
+    const status = live.status || 'ok';
+    const col = statusColor[status];
+    const zsRaw = live.zscore != null ? Math.abs(live.zscore) : 0;
+    const zs = live.zscore != null ? parseFloat(live.zscore).toFixed(1) : '—';
+    const ws = live.wind_speed, wd = live.wind_dir;
+    const r = 8;
+
+    const bear = _bearingTo(pd.lat, pd.lon, MAASTRICHT_REF.lat, MAASTRICHT_REF.lon);
+    const delta = wd != null ? Math.abs(((wd - bear) + 360) % 360) : 999;
+    const aligned = delta < 45 || delta > 315;
+    const windLine = ws != null ? `${ws} km/h ${dirArrowChar(wd ?? 0)}${aligned ? ' ⚠' : ''}` : '—';
+    const zsColor = zsRaw > 2 ? '#d163a7' : zsRaw > 1 ? '#fdab43' : '#9a9996';
+    const statusLabel = status === 'risk' ? 'Risk' : status === 'watch' ? 'Watch' : 'Routine';
+
+    const lx = x + r + 5;
+    const ly = y < 30 ? y + 8 : y - 10;
+
+    plantSVG += `<g class="ua-plant-marker" data-plant="${pd.name}" style="cursor:pointer">
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${col}"
+        stroke="rgba(0,0,0,0.5)" stroke-width="1.5" opacity="0.95">
+        <animate attributeName="r" values="${r};${r+3};${r}" dur="2.8s" repeatCount="indefinite"/>
+      </circle>
+      ${bearingGuide(x, y, pd.lat, pd.lon, wd)}
+      ${ws != null && wd != null ? windArrowUA(x, y, ws, wd) : ''}
+      <rect x="${lx}" y="${ly}" width="160" height="54" rx="4"
+        fill="rgba(0,0,0,0.62)" stroke="rgba(255,255,255,0.07)" stroke-width="0.5"/>
+      <text x="${lx+6}" y="${ly+13}" font-size="11" fill="${col}"
+        font-family="Satoshi,Inter,sans-serif" font-weight="600">${pd.name}</text>
+      <text x="${lx+6}" y="${ly+26}" font-size="9" fill="${aligned ? '#d163a7' : '#5591c7'}"
+        font-family="sans-serif">• Wind: ${windLine}</text>
+      <text x="${lx+6}" y="${ly+38}" font-size="9" fill="${zsColor}"
+        font-family="sans-serif">• z-score: ${zs}</text>
+      <text x="${lx+6}" y="${ly+50}" font-size="9" fill="${col}"
+        font-family="sans-serif">• ${statusLabel}</text>
+    </g>`;
+  });
 
   let citySVG = '';
   UA_CITIES_INTERNAL.forEach(c => {
@@ -163,6 +203,7 @@ function buildUkraineMap(plantsJSON) {
     <path d="${CRIMEA_PATH}" fill="#2d1a1a" stroke="#4d3030" stroke-width="1" stroke-dasharray="5,3"/>
     ${latLines}
     ${lonLines}
+    ${plantSVG}
     ${citySVG}
     <!-- Bearing legend label at left edge -->
     <text x="6" y="18" font-size="10" fill="#fdab43" font-family="sans-serif" font-weight="600">◀ Maastricht / Traben-Trarbach (west, ~1400–2200 km)</text>
