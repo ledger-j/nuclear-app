@@ -13,7 +13,7 @@ import os
 import statistics
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, asdict
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Literal
 from urllib.request import urlopen, Request
 from urllib.error import URLError
@@ -23,6 +23,11 @@ from urllib.error import URLError
 # ---------------------------------------------------------------------------
 
 PLANTS = [
+    # Ukraine — War-zone high-risk
+    {"name": "Zaporizhzhia",  "lat": 47.510, "lon": 34.590, "country": "UA", "priority": "high"},
+    {"name": "South Ukraine", "lat": 47.812, "lon": 31.215, "country": "UA", "priority": "high"},
+    {"name": "Khmelnytskyi", "lat": 50.296, "lon": 26.658, "country": "UA", "priority": "high"},
+    {"name": "Rivne",         "lat": 51.387, "lon": 25.895, "country": "UA", "priority": "high"},
     # Belgium — Priority
     {"name": "Doel",            "lat": 51.326, "lon": 4.258,  "country": "BE", "priority": "high"},
     {"name": "Tihange",         "lat": 50.534, "lon": 5.276,  "country": "BE", "priority": "high"},
@@ -140,9 +145,13 @@ RSS_FEEDS = [
     ("ASN", "https://www.asn.fr/rss"),
     ("ASN-Avis", "https://www.asn.fr/rss/avis"),
     ("FANC", "https://fanc.fgov.be/nl/rss.xml"),
+    ("IAEA", "https://www.iaea.org/feeds/topical/safeguards.xml"),
 ]
 
 PLANT_KEYWORDS = [p["name"].lower().split("-")[0] for p in PLANTS]  # first word
+# Add Ukraine-specific terms so RSS can flag Ukrainian plant news
+UKRAINE_KEYWORDS = ["zaporizhzhia", "zaporizhia", "znpp", "rivne", "khmelnytsk", "south ukraine",
+                    "enerhodar", "ukraine nuclear", "ukrainian nuclear", "iaea ukraine"]
 
 def fetch_rss_notices() -> list[dict]:
     """Fetch and parse RSS feeds, returning items that mention plant names."""
@@ -164,13 +173,14 @@ def fetch_rss_notices() -> list[dict]:
                 pubdate = pubdate_el.text if pubdate_el is not None and pubdate_el.text else ""
                 combined = (title + " " + desc).lower()
                 matched_plants = [kw for kw in PLANT_KEYWORDS if kw in combined]
+                ukraine_hit = any(kw in combined for kw in UKRAINE_KEYWORDS)
                 items.append({
                     "source": source_name,
                     "title": title,
                     "link": link,
                     "pubdate": pubdate,
                     "matched_plants": matched_plants,
-                    "is_nuclear_mention": bool(matched_plants) or any(
+                    "is_nuclear_mention": bool(matched_plants) or ukraine_hit or any(
                         w in combined for w in ["nucléaire", "nuclear", "radioact", "incident", "rejet"]
                     ),
                 })
@@ -452,7 +462,7 @@ if __name__ == "__main__":
     with open(history_file, "w") as f:
         json.dump(history, f, indent=2)
 
-    print(f"\n✓ Written to {output_file}")
+    print(f"\nDone. Written to {output_file}")
     print(f"  History entries: {len(history)}")
     print(f"  Total score: {data['total_score']}")
     print(f"  Plants: {len(data['plants'])}")

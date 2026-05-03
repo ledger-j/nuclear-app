@@ -1,6 +1,78 @@
 {
-  "timestamp": "2026-05-03T21:43:26.769590+00:00",
+  "timestamp": "2026-05-03T21:37:19.445926+00:00",
   "plants": [
+    {
+      "name": "Zaporizhzhia",
+      "lat": 47.51,
+      "lon": 34.59,
+      "country": "UA",
+      "priority": "high",
+      "status": "ok",
+      "baseline": 42.0,
+      "val": 38.0,
+      "unit": "cpm",
+      "zscore": -0.9,
+      "wind_speed": 7.3,
+      "wind_dir": 20,
+      "temp": 10.8,
+      "precip": null,
+      "rss_mentions": 0,
+      "sample_count": 25
+    },
+    {
+      "name": "South Ukraine",
+      "lat": 47.812,
+      "lon": 31.215,
+      "country": "UA",
+      "priority": "high",
+      "status": "ok",
+      "baseline": 41.0,
+      "val": 43.8,
+      "unit": "cpm",
+      "zscore": 0.4,
+      "wind_speed": 2.7,
+      "wind_dir": 67,
+      "temp": 8.6,
+      "precip": null,
+      "rss_mentions": 0,
+      "sample_count": 25
+    },
+    {
+      "name": "Khmelnytskyi",
+      "lat": 50.296,
+      "lon": 26.658,
+      "country": "UA",
+      "priority": "high",
+      "status": "ok",
+      "baseline": 39.0,
+      "val": 37.6,
+      "unit": "cpm",
+      "zscore": -0.23,
+      "wind_speed": 5.4,
+      "wind_dir": 312,
+      "temp": 12.7,
+      "precip": null,
+      "rss_mentions": 0,
+      "sample_count": 25
+    },
+    {
+      "name": "Rivne",
+      "lat": 51.387,
+      "lon": 25.895,
+      "country": "UA",
+      "priority": "high",
+      "status": "ok",
+      "baseline": 25.0,
+      "val": 25.0,
+      "unit": "cpm",
+      "zscore": 0,
+      "wind_speed": 5.4,
+      "wind_dir": 228,
+      "temp": 12.4,
+      "precip": null,
+      "rss_mentions": 0,
+      "sample_count": 25
+    },
     {
       "name": "Doel",
       "lat": 51.326,
@@ -246,10 +318,10 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": null,
-      "wind_dir": null,
-      "temp": null,
-      "precip": null,
+      "wind_speed": 10.8,
+      "wind_dir": 178,
+      "temp": 15.6,
+      "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
     },
@@ -362,8 +434,12 @@
       "sample_count": 0
     }
   ],
-  "total_score": 84,
+  "total_score": 100,
   "trend": [
+    18,
+    8,
+    4,
+    2,
     20,
     5,
     28,
@@ -371,30 +447,26 @@
     17,
     2,
     13,
-    2,
-    2,
-    2,
-    2,
     2
   ],
   "logs": [
     {
-      "time": "21:43",
+      "time": "21:37",
       "level": "ok",
-      "msg": "Safecast sync complete. 225 readings ingested."
+      "msg": "Safecast sync complete. 325 readings ingested."
     },
     {
-      "time": "21:43",
+      "time": "21:37",
       "level": "watch",
-      "msg": "RSS: 2 nuclear-related items found across 3 feeds."
+      "msg": "RSS: 2 nuclear-related items found across 4 feeds."
     },
     {
-      "time": "21:43",
+      "time": "21:37",
       "level": "ok",
       "msg": "Kernel cycle complete."
     }
   ],
-  "summary": "Score: 84/100. 3/3 connectors online.",
+  "summary": "Score: 100/100. 3/3 connectors online.",
   "connectors": {
     "safecast": "online",
     "open_meteo": "online",
@@ -429,11 +501,51 @@
   "signals": [
     {
       "source": "Safecast",
+      "region": "Zaporizhzhia",
+      "metric": "gamma_cpm",
+      "value": 38.0,
+      "baseline": 42.0,
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
+      "confidence": 0.3,
+      "kind": "measurement"
+    },
+    {
+      "source": "Safecast",
+      "region": "South Ukraine",
+      "metric": "gamma_cpm",
+      "value": 43.8,
+      "baseline": 41.0,
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
+      "confidence": 0.13,
+      "kind": "measurement"
+    },
+    {
+      "source": "Safecast",
+      "region": "Khmelnytskyi",
+      "metric": "gamma_cpm",
+      "value": 37.6,
+      "baseline": 39.0,
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
+      "confidence": 0.08,
+      "kind": "measurement"
+    },
+    {
+      "source": "Safecast",
+      "region": "Rivne",
+      "metric": "gamma_cpm",
+      "value": 25.0,
+      "baseline": 25.0,
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
+      "confidence": 0.0,
+      "kind": "measurement"
+    },
+    {
+      "source": "Safecast",
       "region": "Doel",
       "metric": "gamma_cpm",
       "value": 33.2,
       "baseline": 40.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.34,
       "kind": "measurement"
     },
@@ -443,7 +555,7 @@
       "metric": "news_mentions",
       "value": 1.0,
       "baseline": 0.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.3,
       "kind": "notice"
     },
@@ -453,7 +565,7 @@
       "metric": "gamma_cpm",
       "value": 37.2,
       "baseline": 38.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.1,
       "kind": "measurement"
     },
@@ -463,7 +575,7 @@
       "metric": "news_mentions",
       "value": 1.0,
       "baseline": 0.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.3,
       "kind": "notice"
     },
@@ -473,7 +585,7 @@
       "metric": "gamma_cpm",
       "value": 41.2,
       "baseline": 30.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.47,
       "kind": "measurement"
     },
@@ -483,7 +595,7 @@
       "metric": "gamma_cpm",
       "value": 103.0,
       "baseline": 37.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.34,
       "kind": "measurement"
     },
@@ -493,7 +605,7 @@
       "metric": "gamma_cpm",
       "value": 65.4,
       "baseline": 42.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.29,
       "kind": "measurement"
     },
@@ -503,7 +615,7 @@
       "metric": "gamma_cpm",
       "value": 46.8,
       "baseline": 47.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.01,
       "kind": "measurement"
     },
@@ -513,7 +625,7 @@
       "metric": "gamma_cpm",
       "value": 44.8,
       "baseline": 48.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.22,
       "kind": "measurement"
     },
@@ -523,7 +635,7 @@
       "metric": "gamma_cpm",
       "value": 37.0,
       "baseline": 37.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.0,
       "kind": "measurement"
     },
@@ -533,7 +645,7 @@
       "metric": "gamma_cpm",
       "value": 25.6,
       "baseline": 27.0,
-      "timestamp": "2026-05-03T21:43:26.769590+00:00",
+      "timestamp": "2026-05-03T21:37:19.445926+00:00",
       "confidence": 0.0,
       "kind": "measurement"
     }

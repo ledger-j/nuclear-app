@@ -78,6 +78,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       </section>
       <section class="grid">
         <article class="card span-8">
+          <h3>Ukraine Nuclear Map</h3>
+          <p>Four at-risk plants under wartime conditions. Dashed arrows show bearing toward Maastricht — red when wind-aligned.</p>
+          <div id="ua-mapbox" style="width:100%;height:360px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
+        </article>
+        <article class="card span-4">
+          <h3>Wind Alignment: Ukraine → West</h3>
+          <p>Each plant vs. bearing to Maastricht &amp; Traben-Trarbach. Red = wind currently aligned toward those cities.</p>
+          <div class="list" id="ua-wind-panel" style="margin-top:var(--space-3)"></div>
+        </article>
+      </section>
+      <section class="grid">
+        <article class="card span-8">
           <h3>France &amp; Neighbour Nuclear Map</h3>
           <p>${d.summary||''}</p>
           <div id="mapbox" style="width:100%;height:380px;border-radius:12px;overflow:hidden;margin-top:var(--space-3)"></div>
@@ -104,7 +116,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         </article>
       </section>`;
 
-    // inject SVG map
+    // inject Ukraine SVG map
+    const uaBox = document.getElementById('ua-mapbox');
+    if (uaBox && typeof buildUkraineMap === 'function') {
+      uaBox.innerHTML = buildUkraineMap(d.plants);
+      uaBox.querySelectorAll('.ua-plant-marker').forEach(g => {
+        g.addEventListener('mouseenter', e => {
+          const name = g.getAttribute('data-plant');
+          const p = (d.plants||[]).find(x=>x.name===name)||{};
+          const pd = (typeof UKRAINE_PLANTS_DATA !== 'undefined' ? UKRAINE_PLANTS_DATA : []).find(x=>x.name===name)||{};
+          showTooltip(e, `<strong>${name}</strong><br>
+            ${pd.note||''}<br>
+            Wind: ${p.wind_speed??'—'} km/h @ ${p.wind_dir??'—'}°<br>
+            Status: ${p.status||'—'}`);
+        });
+        g.addEventListener('mouseleave', hideTooltip);
+      });
+    }
+
+    const uaWind = document.getElementById('ua-wind-panel');
+    if (uaWind && typeof buildUkraineWindAlignment === 'function') {
+      uaWind.innerHTML = buildUkraineWindAlignment(d.plants);
+    }
+
+    // inject France SVG map
     const box = document.getElementById('mapbox');
     if (box && typeof buildSVGMap === 'function') {
       box.innerHTML = buildSVGMap(d.plants);
@@ -149,6 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── WATCHLIST ─────────────────────────────────────────────────────────────
   function renderWatchlist() {
+    const ua    = appData.plants.filter(p=>p.country==='UA');
     const be    = appData.plants.filter(p=>p.country==='BE');
     const frHi  = appData.plants.filter(p=>p.country==='FR'&&p.priority==='high');
     const frMed = appData.plants.filter(p=>p.country==='FR'&&p.priority==='medium');
@@ -164,6 +200,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     mainEl.innerHTML = `
       <div class="topbar"><div class="title"><h2>Plant Watchlist</h2>
         <p>Per-plant view with radiation, weather, and news context for all monitored sites.</p></div></div>
+      <section class="grid">
+        <article class="card span-12">
+          <h3>🇺🇦 Ukraine — War-Zone High Risk</h3>
+          <p style="color:var(--color-warning);margin-bottom:var(--space-3)">Four plants under wartime conditions. Zaporizhzhia is Russian-occupied. Wind alignment with Maastricht/Traben-Trarbach is tracked in the Live Overview.</p>
+          <div class="list">${cards(ua)||'<div class="item"><small>No Ukraine data yet — kernel will fetch on next cycle.</small></div>'}</div>
+        </article>
+      </section>
       <section class="grid">
         <article class="card span-6"><h3>🇧🇪 Belgium — Priority</h3><div class="list">${cards(be)}</div></article>
         <article class="card span-6"><h3>🇫🇷 France — Border Focus</h3><div class="list">${cards(frHi)}</div></article>

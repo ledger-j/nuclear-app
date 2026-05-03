@@ -5,21 +5,19 @@ on:
     - cron: '0 * * * *' # Run every hour
   workflow_dispatch: # Allow manual trigger
 
-# Grant write access to repository contents so the kernel can push latest.json
 permissions:
   contents: write
 
 jobs:
   generate-data:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -27,13 +25,17 @@ jobs:
         python-version: '3.12'
 
     - name: Run Smart Kernel (Generate Data)
-      run: |
-        python backend/generate_data.py
+      run: python backend/generate_data.py
 
     - name: Commit and Push Data
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "Nuclear Sentinel Bot"
         git add frontend/data/latest.json frontend/data/history.json
-        git diff --cached --quiet || git commit -m "chore: update monitor data [skip ci]"
-        git push
+        if git diff --cached --quiet; then
+          echo "No changes to commit — skipping push."
+        else
+          git commit -m "chore: update monitor data [skip ci]"
+          git pull --rebase origin "${GITHUB_REF#refs/heads/}"
+          git push origin HEAD
+        fi
