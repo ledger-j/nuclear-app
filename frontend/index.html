@@ -88,7 +88,7 @@
     .flow .step strong{display:block;margin-bottom:0.2rem}
     .footer-note{padding:var(--space-4);border-radius:var(--radius-lg);background:color-mix(in oklab,var(--color-primary) 10%,var(--color-surface));border:1px solid color-mix(in oklab,var(--color-primary) 20%,transparent)}
     .toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:var(--radius-full);border:1px solid oklch(from var(--color-text) l c h / 0.12);background:var(--color-surface)}
-    .mapbox{margin-top:var(--space-3);background:radial-gradient(circle at 20% 20%, color-mix(in oklab,var(--color-primary) 25%,transparent), transparent 35%),radial-gradient(circle at 80% 30%, color-mix(in oklab,var(--color-orange) 18%,transparent), transparent 28%),var(--color-surface-2);min-height:280px;border-radius:var(--radius-xl);border:1px solid oklch(from var(--color-text) l c h / 0.08);padding:var(--space-4);position:relative;overflow:hidden}
+    .mapbox{margin-top:var(--space-3);border-radius:var(--radius-xl);overflow:hidden;min-height:280px}
     .plant{position:absolute;padding:0.35rem 0.55rem;border-radius:var(--radius-full);font-size:var(--text-xs);background:var(--color-bg);border:1px solid oklch(from var(--color-text) l c h / 0.12);box-shadow:var(--shadow-sm)}
     /* removed hardcoded .plant::before to allow JS coloring */
     .legend{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)}
@@ -144,6 +144,7 @@
         <button>Weather stress <span>04</span></button>
         <button>News anomaly engine <span>05</span></button>
         <button>Agent kernel <span>06</span></button>
+        <button>Z-Score explainer <span>07</span></button>
       </div>
       <div class="sidebar-foot">
         <div class="footer-note tiny">
@@ -156,6 +157,8 @@
       <div class="topbar"><div class="title"><h2>Loading…</h2></div></div>
     </main>
   </div>
+  <script src="js/map_data.js"></script>
+  <script src="js/zscore_panel.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
