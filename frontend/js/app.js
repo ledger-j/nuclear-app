@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderWatchlist() {
     const rssItems = appData.rss_items || [];
     const ua = appData.plants.filter(p => p.country === 'UA');
+    const be = appData.plants.filter(p => p.country === 'BE');
     const fr = appData.plants.filter(p => p.country === 'FR');
 
     // Derive per-plant anomaly score (0-100) from z-score + status
@@ -253,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="topbar"><div class="title"><h2>Plant Watchlist</h2>
         <p>Individual anomaly scores, wind data, radiation readings, and matched news per plant.</p></div></div>
 
-      <section class="grid">
+      <section class="grid" id="watchlist-ukraine">
         <article class="card span-12">
           <h3>🇺🇦 Ukraine — War-Zone High Risk</h3>
           <p style="font-size:var(--text-xs);color:var(--color-warning);margin-bottom:var(--space-3)">
@@ -265,7 +266,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         </article>
       </section>
 
-      <section class="grid">
+      <section class="grid" id="watchlist-belgium">
+        <article class="card span-12">
+          <h3>🇧🇪 Belgium — Priority</h3>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">
+            Doel and Tihange are the two closest operational plants to Maastricht. Tihange is ~100 km upstream on the Meuse.
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3)">
+            ${be.map(plantCard).join('') || '<div class="item"><small>No Belgium data yet.</small></div>'}
+          </div>
+        </article>
+      </section>
+
+      <section class="grid" id="watchlist-france">
         <article class="card span-6">
           <h3>🇫🇷 France — Border Focus</h3>
           <div style="display:grid;gap:var(--space-3);margin-top:var(--space-3)">${frHi.map(plantCard).join('')}</div>
@@ -538,8 +551,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  document.querySelectorAll('.sub-nav a').forEach(link=>{
-    link.addEventListener('click',e=>{e.preventDefault();currentView='watchlist';renderView();});
+  document.querySelectorAll('.sub-nav a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      currentView = 'watchlist';
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-watchlist')?.classList.add('active');
+      const section = link.dataset.section;
+      renderView();
+      if (section) {
+        requestAnimationFrame(() => {
+          const el = document.getElementById('watchlist-' + section);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    });
   });
 
   const wlBtn=document.getElementById('btn-watchlist');

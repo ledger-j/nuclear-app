@@ -49,6 +49,7 @@
     .sub-title{font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-1)}
     .sub-nav a{display:block;font-size:var(--text-sm);color:var(--color-text-muted);text-decoration:none;padding:var(--space-1) 0}
     .sub-nav a:hover{color:var(--color-text)}
+    .sub-nav-section{font-size:var(--text-xs)!important;text-transform:uppercase;letter-spacing:0.06em;padding:var(--space-2) 0!important;border-bottom:1px solid oklch(from var(--color-text) l c h / 0.08);margin-bottom:var(--space-1)}
     .chevron{transition:transform 0.3s ease;font-size:0.8em}
     .chevron.open{transform:rotate(180deg)}
     .sidebar-foot{margin-top:auto;padding-top:var(--space-8);display:grid;gap:var(--space-3)}
@@ -120,32 +121,9 @@
         <div class="nav-item">
           <button id="btn-watchlist">Plant watchlist <span class="chevron">▼</span></button>
           <div class="sub-nav" id="sub-watchlist">
-            <div class="sub-group">
-              <div class="sub-title">Ukraine (War-Zone)</div>
-              <a href="#">Zaporizhzhia</a>
-              <a href="#">South Ukraine</a>
-              <a href="#">Khmelnytskyi</a>
-              <a href="#">Rivne</a>
-            </div>
-            <div class="sub-group">
-              <div class="sub-title">Belgium (Priority)</div>
-              <a href="#">Doel</a>
-              <a href="#">Tihange</a>
-            </div>
-            <div class="sub-group">
-              <div class="sub-title">France (Border Focus)</div>
-              <a href="#">Gravelines</a>
-              <a href="#">Chooz</a>
-              <a href="#">Cattenom</a>
-              <a href="#">Nogent-sur-Seine</a>
-              <a href="#">Tricastin</a>
-              <a href="#">Bugey</a>
-              <a href="#">Blayais</a>
-            </div>
-            <div class="sub-group">
-              <div class="sub-title">France (Other Active)</div>
-              <a href="#">Belleville, Chinon, Civaux...</a>
-            </div>
+            <a href="#" class="sub-nav-section" data-section="ukraine">Ukraine (War-Zone)</a>
+            <a href="#" class="sub-nav-section" data-section="belgium">Belgium (Priority)</a>
+            <a href="#" class="sub-nav-section" data-section="france">France (Border Focus)</a>
           </div>
         </div>
         <button>Weather stress <span>04</span></button>
