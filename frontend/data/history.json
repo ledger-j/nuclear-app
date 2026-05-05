@@ -175,5 +175,20 @@
       "Bugey": 0,
       "Blayais": -0.01
     }
+  },
+  {
+    "ts": "2026-05-05T13:14:04.747973+00:00",
+    "score": 19,
+    "plant_zscores": {
+      "Doel": 0.64,
+      "Tihange": -0.42,
+      "Gravelines": 1.41,
+      "Chooz": 1.02,
+      "Cattenom": 0.87,
+      "Nogent-sur-Seine": -0.04,
+      "Tricastin": -0.65,
+      "Bugey": 0,
+      "Blayais": -0.01
+    }
   }
 ]
