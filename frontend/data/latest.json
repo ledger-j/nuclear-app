@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-09T18:44:32.920590+00:00",
+  "timestamp": "2026-05-10T01:58:39.760910+00:00",
   "plants": [
     {
       "name": "Doel",
@@ -12,11 +12,11 @@
       "val": 27.2,
       "unit": "cpm",
       "zscore": 0.64,
-      "wind_speed": 18.0,
-      "wind_dir": 358,
-      "temp": 17.2,
+      "wind_speed": 13.7,
+      "wind_dir": 21,
+      "temp": 11.9,
       "precip": null,
-      "rss_mentions": 1,
+      "rss_mentions": 0,
       "sample_count": 25
     },
     {
@@ -30,11 +30,11 @@
       "val": 32.0,
       "unit": "cpm",
       "zscore": -0.42,
-      "wind_speed": 8.3,
-      "wind_dir": 36,
-      "temp": 18.5,
+      "wind_speed": 4.0,
+      "wind_dir": 99,
+      "temp": 12.6,
       "precip": null,
-      "rss_mentions": 1,
+      "rss_mentions": 0,
       "sample_count": 25
     },
     {
@@ -48,9 +48,9 @@
       "val": 41.2,
       "unit": "cpm",
       "zscore": 1.41,
-      "wind_speed": 23.2,
-      "wind_dir": 46,
-      "temp": 14.0,
+      "wind_speed": 20.1,
+      "wind_dir": 43,
+      "temp": 12.4,
       "precip": null,
       "rss_mentions": 0,
       "sample_count": 25
@@ -66,9 +66,9 @@
       "val": 103.0,
       "unit": "cpm",
       "zscore": 1.02,
-      "wind_speed": 7.6,
-      "wind_dir": 41,
-      "temp": 18.1,
+      "wind_speed": 4.3,
+      "wind_dir": 51,
+      "temp": 12.7,
       "precip": null,
       "rss_mentions": 0,
       "sample_count": 25
@@ -80,13 +80,13 @@
       "country": "FR",
       "priority": "high",
       "status": "ok",
-      "baseline": 42.0,
-      "val": 65.4,
+      "baseline": 47.0,
+      "val": 47.6,
       "unit": "cpm",
-      "zscore": 0.87,
-      "wind_speed": 7.9,
-      "wind_dir": 58,
-      "temp": 18.7,
+      "zscore": 0.06,
+      "wind_speed": 9.7,
+      "wind_dir": 348,
+      "temp": 10.9,
       "precip": null,
       "rss_mentions": 0,
       "sample_count": 25
@@ -102,9 +102,9 @@
       "val": 46.8,
       "unit": "cpm",
       "zscore": -0.04,
-      "wind_speed": 7.6,
-      "wind_dir": 31,
-      "temp": 20.2,
+      "wind_speed": 9.8,
+      "wind_dir": 66,
+      "temp": 11.9,
       "precip": null,
       "rss_mentions": 0,
       "sample_count": 25
@@ -120,10 +120,10 @@
       "val": 143.0,
       "unit": "cpm",
       "zscore": 1.09,
-      "wind_speed": 6.8,
-      "wind_dir": 205,
-      "temp": 19.8,
-      "precip": null,
+      "wind_speed": 2.2,
+      "wind_dir": 99,
+      "temp": 14.9,
+      "precip": 0.2,
       "rss_mentions": 0,
       "sample_count": 25
     },
@@ -138,9 +138,9 @@
       "val": 37.0,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 6.1,
-      "wind_dir": 180,
-      "temp": 20.9,
+      "wind_speed": 7.4,
+      "wind_dir": 194,
+      "temp": 15.1,
       "precip": null,
       "rss_mentions": 0,
       "sample_count": 25
@@ -156,9 +156,9 @@
       "val": 25.6,
       "unit": "cpm",
       "zscore": -0.01,
-      "wind_speed": 6.3,
-      "wind_dir": 121,
-      "temp": 21.4,
+      "wind_speed": null,
+      "wind_dir": null,
+      "temp": null,
       "precip": null,
       "rss_mentions": 0,
       "sample_count": 25
@@ -174,9 +174,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 11.4,
-      "wind_dir": 167,
-      "temp": 19.5,
+      "wind_speed": 5.6,
+      "wind_dir": 140,
+      "temp": 12.0,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -192,10 +192,10 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": null,
-      "wind_dir": null,
-      "temp": null,
-      "precip": null,
+      "wind_speed": 2.9,
+      "wind_dir": 120,
+      "temp": 12.5,
+      "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
     },
@@ -210,9 +210,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 3.4,
-      "wind_dir": 302,
-      "temp": 12.8,
+      "wind_speed": 4.7,
+      "wind_dir": 328,
+      "temp": 9.5,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -228,9 +228,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 6.1,
-      "wind_dir": 304,
-      "temp": 10.7,
+      "wind_speed": 5.4,
+      "wind_dir": 285,
+      "temp": 8.9,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -246,9 +246,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 12.4,
-      "wind_dir": 126,
-      "temp": 17.7,
+      "wind_speed": 10.1,
+      "wind_dir": 125,
+      "temp": 12.1,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -264,9 +264,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 3.6,
-      "wind_dir": 37,
-      "temp": 21.1,
+      "wind_speed": 4.5,
+      "wind_dir": 151,
+      "temp": 13.0,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -282,9 +282,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 1.8,
-      "wind_dir": 101,
-      "temp": 21.6,
+      "wind_speed": 7.9,
+      "wind_dir": 150,
+      "temp": 15.2,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -300,9 +300,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 3.2,
-      "wind_dir": 27,
-      "temp": 21.1,
+      "wind_speed": 5.1,
+      "wind_dir": 129,
+      "temp": 13.4,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -318,10 +318,10 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 6.1,
-      "wind_dir": 208,
-      "temp": 19.8,
-      "precip": 0.0,
+      "wind_speed": 8.2,
+      "wind_dir": 157,
+      "temp": 14.6,
+      "precip": 0.3,
       "rss_mentions": 0,
       "sample_count": 0
     },
@@ -336,9 +336,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 5.4,
-      "wind_dir": 37,
-      "temp": 20.0,
+      "wind_speed": 5.1,
+      "wind_dir": 98,
+      "temp": 13.3,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -354,9 +354,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 27.4,
-      "wind_dir": 71,
-      "temp": 16.8,
+      "wind_speed": 36.8,
+      "wind_dir": 72,
+      "temp": 12.1,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -372,10 +372,10 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 19.1,
-      "wind_dir": 78,
-      "temp": 15.2,
-      "precip": 0.0,
+      "wind_speed": 26.5,
+      "wind_dir": 18,
+      "temp": 13.0,
+      "precip": 0.1,
       "rss_mentions": 0,
       "sample_count": 0
     },
@@ -390,9 +390,9 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 14.0,
+      "wind_speed": 18.4,
       "wind_dir": 64,
-      "temp": 18.1,
+      "temp": 12.6,
       "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
@@ -408,10 +408,10 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": 6.5,
-      "wind_dir": 174,
-      "temp": 20.7,
-      "precip": 0.0,
+      "wind_speed": null,
+      "wind_dir": null,
+      "temp": null,
+      "precip": null,
       "rss_mentions": 0,
       "sample_count": 0
     },
@@ -426,21 +426,21 @@
       "val": null,
       "unit": "cpm",
       "zscore": 0,
-      "wind_speed": null,
-      "wind_dir": null,
-      "temp": null,
-      "precip": null,
+      "wind_speed": 1.5,
+      "wind_dir": 256,
+      "temp": 14.3,
+      "precip": 0.0,
       "rss_mentions": 0,
       "sample_count": 0
     }
   ],
-  "total_score": 20,
+  "total_score": 13,
   "trend": [
     12,
     8,
     28,
     20,
-    17,
+    2,
     2,
     21,
     2,
@@ -451,59 +451,34 @@
   ],
   "logs": [
     {
-      "time": "18:44",
+      "time": "01:58",
       "level": "watch",
       "msg": "EURDEP: corridor data unavailable this cycle."
     },
     {
-      "time": "18:44",
+      "time": "01:58",
       "level": "ok",
       "msg": "Safecast sync complete. 225 readings ingested."
     },
     {
-      "time": "18:44",
-      "level": "watch",
-      "msg": "RSS: 2 nuclear-related items found across 4 feeds."
+      "time": "01:58",
+      "level": "ok",
+      "msg": "RSS feeds scanned. No nuclear-related items detected."
     },
     {
-      "time": "18:44",
+      "time": "01:58",
       "level": "ok",
       "msg": "Kernel cycle complete."
     }
   ],
-  "summary": "Score: 20/100. 3/4 connectors online.",
+  "summary": "Score: 13/100. 2/4 connectors online.",
   "connectors": {
     "safecast": "online",
     "open_meteo": "online",
-    "rss_feeds": "online",
+    "rss_feeds": "offline",
     "eurdep": "offline"
   },
-  "rss_items": [
-    {
-      "source": "FANC",
-      "title": "Qu'est-ce que le radon ? ",
-      "link": "https://fanc.fgov.be/fr/radon",
-      "nuclear": true
-    },
-    {
-      "source": "FANC",
-      "title": "Dossiers d'autorisation et r\u00e9glementation ",
-      "link": "https://fanc.fgov.be/fr/dossiers/dossiers-dautorisation",
-      "nuclear": false
-    },
-    {
-      "source": "FANC",
-      "title": "R\u00e9glementation",
-      "link": "https://fanc.fgov.be/fr/professionnels/reglementation",
-      "nuclear": false
-    },
-    {
-      "source": "FANC",
-      "title": "Actualit\u00e9s des centrales nucl\u00e9aires de Doel et Tihange ",
-      "link": "https://fanc.fgov.be/fr/dossiers/centrales-nucleaires-en-belgique/actualites-des-centrales-nucleaires-de-doel-et-tihange",
-      "nuclear": true
-    }
-  ],
+  "rss_items": [],
   "signals": [
     {
       "source": "Safecast",
@@ -511,19 +486,9 @@
       "metric": "gamma_cpm",
       "value": 27.2,
       "baseline": 24.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.21,
       "kind": "measurement"
-    },
-    {
-      "source": "RSS",
-      "region": "Doel",
-      "metric": "news_mentions",
-      "value": 1.0,
-      "baseline": 0.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
-      "confidence": 0.3,
-      "kind": "notice"
     },
     {
       "source": "Safecast",
@@ -531,19 +496,9 @@
       "metric": "gamma_cpm",
       "value": 32.0,
       "baseline": 35.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.14,
       "kind": "measurement"
-    },
-    {
-      "source": "RSS",
-      "region": "Tihange",
-      "metric": "news_mentions",
-      "value": 1.0,
-      "baseline": 0.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
-      "confidence": 0.3,
-      "kind": "notice"
     },
     {
       "source": "Safecast",
@@ -551,7 +506,7 @@
       "metric": "gamma_cpm",
       "value": 41.2,
       "baseline": 30.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.47,
       "kind": "measurement"
     },
@@ -561,7 +516,7 @@
       "metric": "gamma_cpm",
       "value": 103.0,
       "baseline": 37.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.34,
       "kind": "measurement"
     },
@@ -569,10 +524,10 @@
       "source": "Safecast",
       "region": "Cattenom",
       "metric": "gamma_cpm",
-      "value": 65.4,
-      "baseline": 42.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
-      "confidence": 0.29,
+      "value": 47.6,
+      "baseline": 47.0,
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
+      "confidence": 0.02,
       "kind": "measurement"
     },
     {
@@ -581,7 +536,7 @@
       "metric": "gamma_cpm",
       "value": 46.8,
       "baseline": 47.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.01,
       "kind": "measurement"
     },
@@ -591,7 +546,7 @@
       "metric": "gamma_cpm",
       "value": 143.0,
       "baseline": 34.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.36,
       "kind": "measurement"
     },
@@ -601,7 +556,7 @@
       "metric": "gamma_cpm",
       "value": 37.0,
       "baseline": 37.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.0,
       "kind": "measurement"
     },
@@ -611,7 +566,7 @@
       "metric": "gamma_cpm",
       "value": 25.6,
       "baseline": 27.0,
-      "timestamp": "2026-05-09T18:44:32.920590+00:00",
+      "timestamp": "2026-05-10T01:58:39.760910+00:00",
       "confidence": 0.0,
       "kind": "measurement"
     }
