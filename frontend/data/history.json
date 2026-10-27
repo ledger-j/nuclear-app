@@ -1,20 +1,5 @@
 [
   {
-    "ts": "2026-10-24T15:03:28.221609+00:00",
-    "score": 28,
-    "plant_zscores": {
-      "Doel": -0.24,
-      "Tihange": 1.46,
-      "Gravelines": 1.18,
-      "Chooz": 0.36,
-      "Cattenom": -0.09,
-      "Nogent-sur-Seine": -1.05,
-      "Tricastin": 0.29,
-      "Bugey": 1.42,
-      "Blayais": -0.24
-    }
-  },
-  {
     "ts": "2026-10-24T19:58:01.931165+00:00",
     "score": 27,
     "plant_zscores": {
@@ -160,6 +145,21 @@
   {
     "ts": "2026-10-27T11:15:29.543579+00:00",
     "score": 28,
+    "plant_zscores": {
+      "Doel": -0.24,
+      "Tihange": 1.46,
+      "Gravelines": 1.18,
+      "Chooz": 0.36,
+      "Cattenom": -0.09,
+      "Nogent-sur-Seine": -1.05,
+      "Tricastin": 0.29,
+      "Bugey": 1.42,
+      "Blayais": -0.24
+    }
+  },
+  {
+    "ts": "2026-10-27T17:01:03.524761+00:00",
+    "score": 27,
     "plant_zscores": {
       "Doel": -0.24,
       "Tihange": 1.46,
